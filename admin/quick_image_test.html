@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Image Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .image-test { margin: 20px 0; padding: 15px; border: 2px solid #e2e8f0; border-radius: 8px; }
+        .image-test img { width: 200px; height: 150px; object-fit: cover; border-radius: 8px; }
+        .success { border-color: #48bb78; background: #f0fff4; }
+        .error { border-color: #e53e3e; background: #fffbfb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Quick Image Path Test</h1>
+        <p>Testing image paths for property images:</p>
+        
+        <div class="image-test" id="test1">
+            <h3>Test 1: Absolute Path</h3>
+            <p><code>/rental_system/uploads/properties/property_5_1759696958_0.jpg</code></p>
+            <img src="/rental_system/uploads/properties/property_5_1759696958_0.jpg" alt="Test 1" 
+                 onload="markSuccess('test1')" onerror="markError('test1')">
+        </div>
+        
+        <div class="image-test" id="test2">
+            <h3>Test 2: Relative Path (../)</h3>
+            <p><code>../uploads/properties/property_5_1759696958_1.jpg</code></p>
+            <img src="../uploads/properties/property_5_1759696958_1.jpg" alt="Test 2" 
+                 onload="markSuccess('test2')" onerror="markError('test2')">
+        </div>
+        
+        <div class="image-test" id="test3">
+            <h3>Test 3: Full URL</h3>
+            <p><code>http://localhost/rental_system/uploads/properties/property_5_1759696958_2.jpg</code></p>
+            <img src="http://localhost/rental_system/uploads/properties/property_5_1759696958_2.jpg" alt="Test 3" 
+                 onload="markSuccess('test3')" onerror="markError('test3')">
+        </div>
+
+        <div style="margin-top: 30px;">
+            <a href="dashboard.php#properties" style="display: inline-block; padding: 12px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 6px;">
+                🏠 Back to Properties Management
+            </a>
+            <a href="test_image_paths.html" style="display: inline-block; padding: 12px 20px; background: #48bb78; color: white; text-decoration: none; border-radius: 6px; margin-left: 10px;">
+                🔍 Full Image Path Tests
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function markSuccess(testId) {
+            const element = document.getElementById(testId);
+            element.classList.add('success');
+            element.querySelector('h3').innerHTML += ' ✅';
+        }
+
+        function markError(testId) {
+            const element = document.getElementById(testId);
+            element.classList.add('error');
+            element.querySelector('h3').innerHTML += ' ❌';
+        }
+
+        console.log('Quick Image Test Loaded');
+    </script>
+</body>
+</html>

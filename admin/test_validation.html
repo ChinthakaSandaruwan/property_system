@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Form Validation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-button {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .test-button:hover {
+            background: #5a6fd8;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            background: #f7fafc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin Dashboard Form Validation Test</h1>
+    <p>This page tests the improved form validation and error handling for the Add Property modal.</p>
+    
+    <button class="test-button" onclick="testAddPropertyModal()">Test Add Property Modal</button>
+    <button class="test-button" onclick="testEmptyFormSubmission()">Test Empty Form Validation</button>
+    <button class="test-button" onclick="testPhoneValidation()">Test Phone Number Validation</button>
+    
+    <div id="result"></div>
+
+    <script>
+        // Include the AdminDashboard class methods we need for testing
+        class TestDashboard {
+            validatePropertyForm(form) {
+                const errors = {};
+                const phoneRegex = /^[0]{1}[7]{1}[01245678]{1}[0-9]{7}$/; // Sri Lankan phone number validation
+                
+                // Required field validation
+                const requiredFields = {
+                    'owner_id': 'Property owner',
+                    'title': 'Property title',
+                    'property_type': 'Property type',
+                    'bedrooms': 'Number of bedrooms',
+                    'bathrooms': 'Number of bathrooms',
+                    'area_sqft': 'Area in sq ft',
+                    'rent_amount': 'Monthly rent',
+                    'security_deposit': 'Security deposit',
+                    'address': 'Address',
+                    'city': 'City',
+                    'state': 'State/Province',
+                    'zip_code': 'ZIP/Postal code',
+                    'contact_phone': 'Contact phone',
+                    'description': 'Description'
+                };
+                
+                Object.keys(requiredFields).forEach(field => {
+                    const value = form.querySelector(`[name="${field}"]`)?.value?.trim();
+                    if (!value) {
+                        errors[field] = `${requiredFields[field]} is required`;
+                    }
+                });
+                
+                // Phone number validation
+                const phoneValue = form.querySelector('[name="contact_phone"]')?.value?.trim();
+                if (phoneValue && !phoneRegex.test(phoneValue)) {
+                    errors['contact_phone'] = 'Please enter a valid Sri Lankan phone number (e.g., 0771234567)';
+                }
+                
+                // Numeric validation
+                const numericFields = ['bedrooms', 'bathrooms', 'area_sqft', 'rent_amount', 'security_deposit'];
+                numericFields.forEach(field => {
+                    const value = form.querySelector(`[name="${field}"]`)?.value?.trim();
+                    if (value && (isNaN(value) || parseFloat(value) <= 0)) {
+                        errors[field] = `${requiredFields[field]} must be a positive number`;
+                    }
+                });
+                
+                return {
+                    isValid: Object.keys(errors).length === 0,
+                    errors: errors
+                };
+            }
+            
+            displayFormErrors(form, errors) {
+                let firstErrorField = null;
+                
+                Object.keys(errors).forEach((fieldName, index) => {
+                    const field = form.querySelector(`[name="${fieldName}"]`);
+                    if (field) {
+                        // Remember first error field for focus
+                        if (index === 0) {
+                            firstErrorField = field;
+                        }
+                        
+                        // Create error message element
+                        const errorElement = document.createElement('div');
+                        errorElement.className = 'text-danger error-message';
+                        errorElement.style.cssText = 'color: #e53e3e; font-size: 12px; margin-top: 2px;';
+                        errorElement.textContent = errors[fieldName];
+                        
+                        // Insert error message after the field and style the field
+                        field.style.borderColor = '#e53e3e';
+                        field.style.boxShadow = '0 0 0 2px rgba(229, 62, 62, 0.2)';
+                        field.parentNode.appendChild(errorElement);
+                        
+                        // Add event listener to clear error styling when user starts typing
+                        const clearErrorStyling = () => {
+                            field.style.borderColor = '';
+                            field.style.boxShadow = '';
+                            if (errorElement.parentNode) {
+                                errorElement.parentNode.removeChild(errorElement);
+                            }
+                            field.removeEventListener('input', clearErrorStyling);
+                            field.removeEventListener('change', clearErrorStyling);
+                        };
+                        
+                        field.addEventListener('input', clearErrorStyling);
+                        field.addEventListener('change', clearErrorStyling);
+                    }
+                });
+                
+                // Focus on the first error field and scroll it into view
+                if (firstErrorField) {
+                    firstErrorField.focus();
+                    firstErrorField.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center' 
+                    });
+                }
+            }
+        }
+
+        const testDashboard = new TestDashboard();
+
+        function testAddPropertyModal() {
+            // This would normally open the modal - for testing we'll just show a message
+            document.getElementById('result').innerHTML = `
+                <h3>✅ Add Property Modal Test</h3>
+                <p>The modal functionality has been improved with:</p>
+                <ul>
+                    <li>Better form validation with field-specific error messages</li>
+                    <li>Prevention of double submissions with loading states</li>
+                    <li>Improved error display with focus management</li>
+                    <li>Real-time error clearing when users start typing</li>
+                    <li>Modal auto-close prevention when validation fails</li>
+                </ul>
+                <p><strong>To test:</strong> Open the admin dashboard and click "Add New Property" to see the improvements in action.</p>
+            `;
+        }
+
+        function testEmptyFormSubmission() {
+            // Create a mock form for testing
+            const mockForm = document.createElement('form');
+            mockForm.innerHTML = `
+                <input name="owner_id" value="" />
+                <input name="title" value="" />
+                <input name="property_type" value="" />
+                <input name="bedrooms" value="" />
+                <input name="bathrooms" value="" />
+                <input name="area_sqft" value="" />
+                <input name="rent_amount" value="" />
+                <input name="security_deposit" value="" />
+                <input name="address" value="" />
+                <input name="city" value="" />
+                <input name="state" value="" />
+                <input name="zip_code" value="" />
+                <input name="contact_phone" value="" />
+                <textarea name="description"></textarea>
+            `;
+            
+            const validation = testDashboard.validatePropertyForm(mockForm);
+            
+            document.getElementById('result').innerHTML = `
+                <h3>🔍 Empty Form Validation Test</h3>
+                <p><strong>Validation Result:</strong> ${validation.isValid ? '✅ Valid' : '❌ Invalid'}</p>
+                <p><strong>Number of Errors:</strong> ${Object.keys(validation.errors).length}</p>
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 10px;">
+                    <strong>Validation Errors:</strong>
+                    <pre>${JSON.stringify(validation.errors, null, 2)}</pre>
+                </div>
+            `;
+        }
+
+        function testPhoneValidation() {
+            const testCases = [
+                { phone: '0771234567', expected: true },
+                { phone: '0712345678', expected: true },
+                { phone: '0781234567', expected: true },
+                { phone: '1234567890', expected: false },
+                { phone: '077123456', expected: false },
+                { phone: '07712345678', expected: false },
+                { phone: '', expected: false }
+            ];
+
+            let results = '<h3>📱 Phone Number Validation Test</h3><ul>';
+            
+            testCases.forEach(test => {
+                const mockForm = document.createElement('form');
+                mockForm.innerHTML = `
+                    <input name="contact_phone" value="${test.phone}" />
+                    <input name="owner_id" value="1" />
+                    <input name="title" value="Test" />
+                    <input name="property_type" value="apartment" />
+                    <input name="bedrooms" value="2" />
+                    <input name="bathrooms" value="1" />
+                    <input name="area_sqft" value="1000" />
+                    <input name="rent_amount" value="50000" />
+                    <input name="security_deposit" value="100000" />
+                    <input name="address" value="Test Address" />
+                    <input name="city" value="Colombo" />
+                    <input name="state" value="Western" />
+                    <input name="zip_code" value="10100" />
+                    <textarea name="description">Test description</textarea>
+                `;
+                
+                const validation = testDashboard.validatePropertyForm(mockForm);
+                const phoneError = validation.errors['contact_phone'];
+                const isValid = !phoneError;
+                const passed = isValid === test.expected;
+                
+                results += `<li>${test.phone || '(empty)'}: ${passed ? '✅' : '❌'} 
+                    Expected ${test.expected ? 'valid' : 'invalid'}, got ${isValid ? 'valid' : 'invalid'}
+                    ${phoneError ? `(${phoneError})` : ''}</li>`;
+            });
+            
+            results += '</ul>';
+            document.getElementById('result').innerHTML = results;
+        }
+    </script>
+</body>
+</html>

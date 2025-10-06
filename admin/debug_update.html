@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Property Update</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-button { padding: 15px 25px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 10px; }
+        .result { background: #f7f7f7; padding: 20px; border-radius: 8px; margin: 20px 0; white-space: pre-wrap; font-family: monospace; }
+        .error { background: #ffeaea; border: 1px solid #e53e3e; }
+        .success { background: #e8f5e8; border: 1px solid #48bb78; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug Property Update Issue</h1>
+        
+        <p>This page will help identify why the property update is failing.</p>
+        
+        <button class="test-button" onclick="testSimpleUpdate()">Test Simple Update</button>
+        <button class="test-button" onclick="testComplexUpdate()">Test Full Update</button>
+        <button class="test-button" onclick="checkDatabase()">Check Database Fields</button>
+        
+        <div id="result" class="result">Click a button to start testing...</div>
+    </div>
+
+    <script>
+        async function testSimpleUpdate() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Testing simple property update...';
+            
+            const updateData = {
+                property_id: 13,
+                title: "Test Updated Title",
+                property_type: "house",
+                bedrooms: 2,
+                bathrooms: 2,
+                rent_amount: 6000,
+                security_deposit: 12000,
+                address: "Test Address",
+                city: "Test City",
+                state: "Test State",
+                contact_phone: "0771234567"
+            };
+            
+            try {
+                const response = await fetch('api/update_property.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                let responseData;
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch (e) {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ Failed to parse response as JSON:\n${responseText}`;
+                    return;
+                }
+                
+                if (responseData.success) {
+                    result.className = 'result success';
+                    result.innerHTML = `✅ Simple update successful:\n${JSON.stringify(responseData, null, 2)}`;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ Update failed:\n${JSON.stringify(responseData, null, 2)}`;
+                }
+                
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `❌ Network error:\n${error.message}`;
+            }
+        }
+        
+        async function testComplexUpdate() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Testing complex property update with all fields...';
+            
+            const updateData = {
+                property_id: 13,
+                title: "Test Updated Title Full",
+                description: "Test description",
+                property_type: "apartment",
+                bedrooms: 3,
+                bathrooms: 2,
+                area_sqft: 1500,
+                address: "123 Test Street",
+                city: "Test City",
+                state: "Test State",
+                zip_code: "12345",
+                rent_amount: 7000,
+                security_deposit: 14000,
+                contact_phone: "0771234567",
+                amenities: ["WiFi", "Parking", "Security"],
+                status: "approved",
+                is_available: 1
+            };
+            
+            try {
+                const response = await fetch('api/update_property.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                let responseData;
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch (e) {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ Failed to parse response as JSON:\n${responseText}`;
+                    return;
+                }
+                
+                if (responseData.success) {
+                    result.className = 'result success';
+                    result.innerHTML = `✅ Complex update successful:\n${JSON.stringify(responseData, null, 2)}`;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ Update failed:\n${JSON.stringify(responseData, null, 2)}`;
+                }
+                
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `❌ Network error:\n${error.message}`;
+            }
+        }
+        
+        async function checkDatabase() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Checking current property data structure...';
+            
+            try {
+                const response = await fetch('api/property_actions.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'view',
+                        property_id: 13
+                    })
+                });
+                
+                const responseData = await response.json();
+                
+                if (responseData.success) {
+                    result.className = 'result success';
+                    result.innerHTML = `✅ Current property structure:\n\nDatabase Fields Available:\n${Object.keys(responseData.data).join('\n')}\n\nFull Data:\n${JSON.stringify(responseData.data, null, 2)}`;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ Failed to get property:\n${JSON.stringify(responseData, null, 2)}`;
+                }
+                
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `❌ Network error:\n${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

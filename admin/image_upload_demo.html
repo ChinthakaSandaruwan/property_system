@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Add Property with Images - Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .demo-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 40px;
+        }
+        h2 {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .feature-card h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+        .screenshot-placeholder {
+            width: 100%;
+            height: 300px;
+            background: #e2e8f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a5568;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        .tech-list {
+            list-style: none;
+            padding: 0;
+        }
+        .tech-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .tech-list li:before {
+            content: "✓";
+            color: #38a169;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .highlight-box {
+            background: #f0f4ff;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .upload-demo {
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            background: #f9fafb;
+            margin: 20px 0;
+        }
+        .amenity-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .amenity-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f7fafc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .amenity-item i {
+            margin-right: 8px;
+            color: #667eea;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <h1>🏠 Enhanced Add Property with Images</h1>
+    
+    <div class="demo-section">
+        <h2>🎉 New Features Added</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3><i class="fas fa-images"></i> Multiple Image Upload</h3>
+                <ul>
+                    <li>Drag & drop functionality</li>
+                    <li>Support up to 10 images</li>
+                    <li>File size limit: 5MB per image</li>
+                    <li>Supported formats: JPG, PNG, WebP</li>
+                    <li>Real-time image preview</li>
+                    <li>Individual image removal</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h3><i class="fas fa-star"></i> Amenities Selection</h3>
+                <ul>
+                    <li>10 pre-defined amenities</li>
+                    <li>Visual icons for each amenity</li>
+                    <li>Easy checkbox selection</li>
+                    <li>Responsive grid layout</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h3><i class="fas fa-shield-alt"></i> Enhanced Validation</h3>
+                <ul>
+                    <li>Image requirement validation</li>
+                    <li>File type validation</li>
+                    <li>File size validation</li>
+                    <li>Duplicate file prevention</li>
+                    <li>Form field validation</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>📸 Image Upload Interface</h2>
+        <p>The new image upload area features a modern drag-and-drop interface:</p>
+        
+        <div class="upload-demo">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #cbd5e0; margin-bottom: 15px;"></i>
+            <p style="margin: 0 0 10px; color: #4a5568; font-size: 16px;">Drop images here or click to browse</p>
+            <p style="margin: 0; color: #718096; font-size: 14px;">Support JPG, PNG, WebP (Max: 5MB per image, Up to 10 images)</p>
+            <button type="button" style="margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                <i class="fas fa-folder-open"></i> Browse Images
+            </button>
+        </div>
+        
+        <div class="highlight-box">
+            <h4>✨ Image Upload Features:</h4>
+            <ul class="tech-list">
+                <li>Drag and drop images directly onto the upload area</li>
+                <li>Click to browse and select multiple images</li>
+                <li>Real-time preview with thumbnail generation</li>
+                <li>Individual remove buttons for each image</li>
+                <li>Automatic file validation and error handling</li>
+                <li>Progress indication during upload</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>🌟 Available Amenities</h2>
+        <p>Property owners can select from these popular amenities:</p>
+        
+        <div class="amenity-demo">
+            <div class="amenity-item">
+                <i class="fas fa-wifi"></i> WiFi
+            </div>
+            <div class="amenity-item">
+                <i class="fas fa-snowflake"></i> Air Conditioning
+            </div>
+            <div class="amenity-item">
+                <i class="fas fa-car"></i> Parking
+            </div>
+            <div class="amenity-item">
+                <i class="fas fa-swimming-pool"></i> Swimming Pool
+            </div>
+            <div class="amenity-item">
+                <i class="fas fa-dumbbell"></i> Gym
+            </div>
+            <div class="amenity-item">
+                <i class="fas fa-shield-alt"></i> Security
+            </div>
+            <div class="amenity-item">
+                <i class="fas fa-seedling"></i> Garden
+            </div>
+            <div class="amenity-item">
+                <i class="fas fa-arrows-alt-v"></i> Elevator
+            </div>
+            <div class="amenity-item">
+                <i class="fas fa-mountain"></i> Balcony
+            </div>
+            <div class="amenity-item">
+                <i class="fas fa-couch"></i> Furnished
+            </div>
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>🔧 Technical Implementation</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>Frontend (JavaScript)</h3>
+                <ul class="tech-list">
+                    <li>Drag & drop API implementation</li>
+                    <li>FileReader API for image previews</li>
+                    <li>FormData for file upload handling</li>
+                    <li>Real-time validation and feedback</li>
+                    <li>Dynamic DOM manipulation</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h3>Backend (PHP)</h3>
+                <ul class="tech-list">
+                    <li>Secure file upload handling</li>
+                    <li>File type and size validation</li>
+                    <li>Unique filename generation</li>
+                    <li>Database integration with JSON storage</li>
+                    <li>Error handling and cleanup</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>📁 File Storage Structure</h2>
+        <div class="highlight-box">
+            <h4>Upload Directory:</h4>
+            <p><code>/rental_system/uploads/properties/</code></p>
+            
+            <h4>File Naming Convention:</h4>
+            <p>Files are renamed with unique identifiers to prevent conflicts:</p>
+            <p><code>property_[unique_id].[extension]</code></p>
+            <p>Example: <code>property_60f5a1b23.456789.jpg</code></p>
+            
+            <h4>Database Storage:</h4>
+            <p>Image filenames are stored as JSON array in the <code>images</code> column:</p>
+            <code>["property_60f5a1b23.456789.jpg", "property_60f5a1c45.678901.png"]</code>
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>🚀 How to Test</h2>
+        <div style="display: grid; grid-template-columns: 1fr auto; gap: 30px; align-items: center;">
+            <div>
+                <ol style="font-size: 16px; line-height: 1.8;">
+                    <li><strong>Open Admin Dashboard:</strong> Navigate to the admin dashboard</li>
+                    <li><strong>Go to Properties Management</strong> using the sidebar</li>
+                    <li><strong>Click "Add New Property"</strong> button</li>
+                    <li><strong>Fill in property details</strong> (all required fields)</li>
+                    <li><strong>Upload Images:</strong> Drag & drop or browse to select images</li>
+                    <li><strong>Select Amenities:</strong> Check desired amenities</li>
+                    <li><strong>Submit:</strong> Click "Create Property" to save</li>
+                </ol>
+            </div>
+            <div>
+                <a href="dashboard.php" class="btn" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Open Admin Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>✨ Key Improvements</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>User Experience</h3>
+                <ul class="tech-list">
+                    <li>Intuitive drag & drop interface</li>
+                    <li>Real-time image previews</li>
+                    <li>Clear progress indicators</li>
+                    <li>Instant validation feedback</li>
+                    <li>Responsive design</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h3>Data Management</h3>
+                <ul class="tech-list">
+                    <li>Structured amenity selection</li>
+                    <li>Efficient file storage</li>
+                    <li>Database optimization</li>
+                    <li>Error recovery mechanisms</li>
+                    <li>Secure file handling</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 40px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white;">
+        <h2 style="color: white; border: none; margin-bottom: 10px;">🎉 Enhanced Add Property is Ready!</h2>
+        <p style="margin-bottom: 20px; font-size: 18px;">Complete property creation with image upload and amenities selection</p>
+        <a href="dashboard.php" class="btn" style="background: white; color: #667eea;">
+            <i class="fas fa-rocket"></i> Start Using Now
+        </a>
+    </div>
+</body>
+</html>

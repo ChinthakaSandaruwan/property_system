@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Operations Test - Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        .test-section h2 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .test-button {
+            display: inline-block;
+            margin: 10px;
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #5a67d8;
+        }
+        .test-button.success {
+            background: #48bb78;
+        }
+        .test-button.danger {
+            background: #e53e3e;
+        }
+        .test-button.info {
+            background: #4299e1;
+        }
+        .test-button.warning {
+            background: #ed8936;
+        }
+        .instruction {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #2196f3;
+        }
+        .result {
+            background: #f7f7f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: monospace;
+            min-height: 50px;
+        }
+        .success-result {
+            background: #e8f5e8;
+            border-left: 4px solid #48bb78;
+        }
+        .error-result {
+            background: #ffeaea;
+            border-left: 4px solid #e53e3e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-cogs"></i> CRUD Operations Test - Properties Management</h1>
+        
+        <div class="instruction">
+            <h3><i class="fas fa-info-circle"></i> Test Instructions</h3>
+            <p>Use the buttons below to test various CRUD operations. Results will be displayed in the result boxes.</p>
+            <p><strong>Note:</strong> These tests connect directly to the Admin API endpoints to verify functionality.</p>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-eye"></i> View Operations</h2>
+            <button class="test-button info" onclick="testViewProperty()">
+                <i class="fas fa-eye"></i> Test View Property
+            </button>
+            <button class="test-button info" onclick="testListProperties()">
+                <i class="fas fa-list"></i> Test List Properties
+            </button>
+            <div class="result" id="view-result">Results will appear here...</div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-edit"></i> Update Operations</h2>
+            <button class="test-button warning" onclick="testApproveProperty()">
+                <i class="fas fa-check"></i> Test Approve Property
+            </button>
+            <button class="test-button warning" onclick="testSuspendProperty()">
+                <i class="fas fa-pause"></i> Test Suspend Property
+            </button>
+            <button class="test-button warning" onclick="testMarkAvailable()">
+                <i class="fas fa-eye"></i> Test Mark Available
+            </button>
+            <button class="test-button warning" onclick="testMarkUnavailable()">
+                <i class="fas fa-eye-slash"></i> Test Mark Unavailable
+            </button>
+            <div class="result" id="update-result">Results will appear here...</div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-trash"></i> Delete Operations</h2>
+            <div class="instruction">
+                <p><strong>Warning:</strong> Delete operations are irreversible. Test with caution!</p>
+            </div>
+            <button class="test-button danger" onclick="testDeleteProperty()">
+                <i class="fas fa-trash"></i> Test Delete Property (Use with caution!)
+            </button>
+            <div class="result" id="delete-result">Results will appear here...</div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-plus"></i> Create Operations</h2>
+            <a href="dashboard.php#properties" class="test-button success">
+                <i class="fas fa-plus"></i> Open Admin Dashboard - Add Property
+            </a>
+            <div class="instruction">
+                <p>Create operations should be tested through the main dashboard interface.</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-tachometer-alt"></i> Dashboard Access</h2>
+            <a href="dashboard.php" class="test-button">
+                <i class="fas fa-tachometer-alt"></i> Open Full Admin Dashboard
+            </a>
+            <a href="dashboard.php#properties" class="test-button">
+                <i class="fas fa-home"></i> Go to Properties Management
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Test functions for CRUD operations
+        
+        async function testViewProperty() {
+            const resultDiv = document.getElementById('view-result');
+            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing view property...';
+            
+            try {
+                const response = await fetch('api/property_actions.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'view',
+                        property_id: '13' // Using property ID from earlier test
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success-result';
+                    resultDiv.innerHTML = `
+                        <strong>✅ Success!</strong><br>
+                        Property loaded: ${result.data.title}<br>
+                        Owner: ${result.data.owner_name}<br>
+                        Status: ${result.data.status}<br>
+                        Available: ${result.data.is_available ? 'Yes' : 'No'}
+                    `;
+                } else {
+                    resultDiv.className = 'result error-result';
+                    resultDiv.innerHTML = `<strong>❌ Failed:</strong> ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error-result';
+                resultDiv.innerHTML = `<strong>❌ Error:</strong> ${error.message}`;
+            }
+        }
+        
+        async function testListProperties() {
+            const resultDiv = document.getElementById('view-result');
+            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing list properties...';
+            
+            try {
+                const response = await fetch('api/properties_content.php');
+                const html = await response.text();
+                
+                if (html && html.includes('Properties Management')) {
+                    resultDiv.className = 'result success-result';
+                    resultDiv.innerHTML = `
+                        <strong>✅ Success!</strong><br>
+                        Properties list loaded successfully.<br>
+                        HTML length: ${html.length} characters
+                    `;
+                } else {
+                    resultDiv.className = 'result error-result';
+                    resultDiv.innerHTML = `<strong>❌ Failed:</strong> Invalid response from properties endpoint`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error-result';
+                resultDiv.innerHTML = `<strong>❌ Error:</strong> ${error.message}`;
+            }
+        }
+        
+        async function testApproveProperty() {
+            const resultDiv = document.getElementById('update-result');
+            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing approve property...';
+            
+            try {
+                const response = await fetch('api/property_actions.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'approve',
+                        property_id: '13'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success-result';
+                    resultDiv.innerHTML = `<strong>✅ Success:</strong> ${result.message}`;
+                } else {
+                    resultDiv.className = 'result error-result';
+                    resultDiv.innerHTML = `<strong>❌ Failed:</strong> ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error-result';
+                resultDiv.innerHTML = `<strong>❌ Error:</strong> ${error.message}`;
+            }
+        }
+        
+        async function testSuspendProperty() {
+            const resultDiv = document.getElementById('update-result');
+            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing suspend property...';
+            
+            try {
+                const response = await fetch('api/property_actions.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'suspend',
+                        property_id: '13'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success-result';
+                    resultDiv.innerHTML = `<strong>✅ Success:</strong> ${result.message}`;
+                } else {
+                    resultDiv.className = 'result error-result';
+                    resultDiv.innerHTML = `<strong>❌ Failed:</strong> ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error-result';
+                resultDiv.innerHTML = `<strong>❌ Error:</strong> ${error.message}`;
+            }
+        }
+        
+        async function testMarkAvailable() {
+            const resultDiv = document.getElementById('update-result');
+            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing mark available...';
+            
+            try {
+                const response = await fetch('api/property_actions.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'mark-available',
+                        property_id: '13'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success-result';
+                    resultDiv.innerHTML = `<strong>✅ Success:</strong> ${result.message}`;
+                } else {
+                    resultDiv.className = 'result error-result';
+                    resultDiv.innerHTML = `<strong>❌ Failed:</strong> ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error-result';
+                resultDiv.innerHTML = `<strong>❌ Error:</strong> ${error.message}`;
+            }
+        }
+        
+        async function testMarkUnavailable() {
+            const resultDiv = document.getElementById('update-result');
+            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing mark unavailable...';
+            
+            try {
+                const response = await fetch('api/property_actions.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'mark-unavailable',
+                        property_id: '13'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success-result';
+                    resultDiv.innerHTML = `<strong>✅ Success:</strong> ${result.message}`;
+                } else {
+                    resultDiv.className = 'result error-result';
+                    resultDiv.innerHTML = `<strong>❌ Failed:</strong> ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error-result';
+                resultDiv.innerHTML = `<strong>❌ Error:</strong> ${error.message}`;
+            }
+        }
+        
+        async function testDeleteProperty() {
+            if (!confirm('⚠️ Are you sure you want to test the delete operation? This will permanently delete a property!')) {
+                return;
+            }
+            
+            const resultDiv = document.getElementById('delete-result');
+            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing delete property...';
+            
+            try {
+                const response = await fetch('api/property_actions.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'delete',
+                        property_id: '999' // Using non-existent ID to avoid deleting real data
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success-result';
+                    resultDiv.innerHTML = `<strong>✅ Success:</strong> ${result.message}`;
+                } else {
+                    resultDiv.className = 'result error-result';
+                    resultDiv.innerHTML = `<strong>❌ Expected Failure:</strong> ${result.message} (using non-existent property ID)`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error-result';
+                resultDiv.innerHTML = `<strong>❌ Error:</strong> ${error.message}`;
+            }
+        }
+        
+        console.log('CRUD Operations Test Page Loaded');
+        console.log('Use the buttons above to test various CRUD operations');
+    </script>
+</body>
+</html>

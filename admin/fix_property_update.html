@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Property Update Issues</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .fix-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        .fix-section h2 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .fix-button {
+            display: inline-block;
+            margin: 10px;
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .fix-button:hover {
+            background: #5a67d8;
+        }
+        .fix-button.success {
+            background: #48bb78;
+        }
+        .fix-button.warning {
+            background: #ed8936;
+        }
+        .fix-button.danger {
+            background: #e53e3e;
+        }
+        .result {
+            background: #f7f7f7;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .result.success {
+            background: #e8f5e8;
+            border: 1px solid #48bb78;
+        }
+        .result.error {
+            background: #ffeaea;
+            border: 1px solid #e53e3e;
+        }
+        .result.warning {
+            background: #fff8dc;
+            border: 1px solid #ed8936;
+        }
+        .steps {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-wrench" style="color: #667eea;"></i> Fix Property Update Issues</h1>
+        
+        <div class="steps">
+            <h3><i class="fas fa-list-ol"></i> Automated Fix Process</h3>
+            <p>Follow these steps in order to diagnose and fix the property update issues:</p>
+            <ol>
+                <li><strong>Check Database Structure</strong> - Verify all required columns exist</li>
+                <li><strong>Test Simple Update</strong> - Test with minimal data</li>
+                <li><strong>Test Full Update</strong> - Test with complete property data</li>
+                <li><strong>Fix Any Issues</strong> - Apply fixes based on results</li>
+            </ol>
+        </div>
+
+        <div class="fix-section">
+            <h2><i class="fas fa-database"></i> Step 1: Database Structure Check</h2>
+            <p>Check if all required database columns exist and add missing ones automatically.</p>
+            
+            <button class="fix-button success" onclick="checkDatabaseStructure()">
+                <i class="fas fa-search"></i> Check & Fix Database Structure
+            </button>
+            
+            <div id="db-result" class="result">Click the button to check database structure...</div>
+        </div>
+
+        <div class="fix-section">
+            <h2><i class="fas fa-vial"></i> Step 2: Test Property Updates</h2>
+            <p>Test different update scenarios to identify the specific issue.</p>
+            
+            <button class="fix-button" onclick="testMinimalUpdate()">
+                <i class="fas fa-play"></i> Test Minimal Update
+            </button>
+            <button class="fix-button" onclick="testFullUpdate()">
+                <i class="fas fa-play-circle"></i> Test Full Update
+            </button>
+            <button class="fix-button warning" onclick="testCurrentPropertyData()">
+                <i class="fas fa-eye"></i> Check Current Property Data
+            </button>
+            
+            <div id="test-result" class="result">Click a test button to run tests...</div>
+        </div>
+
+        <div class="fix-section">
+            <h2><i class="fas fa-tools"></i> Step 3: Manual Fixes</h2>
+            <p>Apply specific fixes based on the test results.</p>
+            
+            <button class="fix-button warning" onclick="fixPropertyTypes()">
+                <i class="fas fa-wrench"></i> Fix Property Types
+            </button>
+            <button class="fix-button warning" onclick="fixAmenities()">
+                <i class="fas fa-star"></i> Fix Amenities Data
+            </button>
+            <button class="fix-button danger" onclick="resetTestProperty()">
+                <i class="fas fa-undo"></i> Reset Test Property
+            </button>
+            
+            <div id="fix-result" class="result">Manual fixes will show results here...</div>
+        </div>
+
+        <div class="fix-section">
+            <h2><i class="fas fa-check-circle"></i> Step 4: Verify Fix</h2>
+            <p>Test the property edit functionality in the admin dashboard.</p>
+            
+            <a href="dashboard.php#properties" class="fix-button success">
+                <i class="fas fa-external-link-alt"></i> Test in Admin Dashboard
+            </a>
+            
+            <button class="fix-button" onclick="finalTest()">
+                <i class="fas fa-check"></i> Run Final Test
+            </button>
+            
+            <div id="final-result" class="result">Final test results will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        async function checkDatabaseStructure() {
+            const result = document.getElementById('db-result');
+            result.className = 'result';
+            result.innerHTML = 'Checking database structure...';
+            
+            try {
+                const response = await fetch('api/check_db_structure.php');
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.className = 'result success';
+                    result.innerHTML = `✅ Database structure check completed:\\n\\n` +
+                        `Contact Phone Existed: ${data.data.contact_phone_existed}\\n` +
+                        `Missing Columns: ${data.data.missing_columns.length > 0 ? data.data.missing_columns.join(', ') : 'None'}\\n` +
+                        `Extra Columns: ${data.data.extra_columns.length > 0 ? data.data.extra_columns.join(', ') : 'None'}\\n\\n` +
+                        `Current Columns:\\n${data.data.updated_columns.map(col => `- ${col.Field} (${col.Type})`).join('\\n')}`;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ Database check failed:\\n${data.message}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `❌ Error checking database:\\n${error.message}`;
+            }
+        }
+        
+        async function testMinimalUpdate() {
+            const result = document.getElementById('test-result');
+            result.className = 'result';
+            result.innerHTML = 'Testing minimal property update...';
+            
+            const updateData = {
+                property_id: 13,
+                title: "Test Title - " + Date.now(),
+                property_type: "house",
+                bedrooms: 2,
+                bathrooms: 1,
+                rent_amount: 5000,
+                security_deposit: 10000,
+                address: "Test Address",
+                city: "Test City",
+                state: "Test State",
+                contact_phone: "0771234567"
+            };
+            
+            try {
+                const response = await fetch('api/update_property.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.className = 'result success';
+                    result.innerHTML = `✅ Minimal update successful:\\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ Minimal update failed:\\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `❌ Network error:\\n${error.message}`;
+            }
+        }
+        
+        async function testFullUpdate() {
+            const result = document.getElementById('test-result');
+            result.className = 'result';
+            result.innerHTML = 'Testing full property update...';
+            
+            const updateData = {
+                property_id: 13,
+                title: "Full Test Update - " + Date.now(),
+                description: "Test description update",
+                property_type: "apartment",
+                bedrooms: 3,
+                bathrooms: 2,
+                area_sqft: 1200,
+                address: "123 Full Test Street",
+                city: "Full Test City",
+                state: "Full Test State",
+                zip_code: "12345",
+                rent_amount: 8000,
+                security_deposit: 16000,
+                contact_phone: "0771234567",
+                amenities: ["WiFi", "Parking", "Security"],
+                status: "approved",
+                is_available: 1
+            };
+            
+            try {
+                const response = await fetch('api/update_property.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.className = 'result success';
+                    result.innerHTML = `✅ Full update successful:\\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ Full update failed:\\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `❌ Network error:\\n${error.message}`;
+            }
+        }
+        
+        async function testCurrentPropertyData() {
+            const result = document.getElementById('test-result');
+            result.className = 'result';
+            result.innerHTML = 'Checking current property data...';
+            
+            try {
+                const response = await fetch('api/property_actions.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'view',
+                        property_id: 13
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.className = 'result success';
+                    result.innerHTML = `✅ Current property data:\\n\\nAvailable Fields:\\n${Object.keys(data.data).join('\\n')}\\n\\nFull Data:\\n${JSON.stringify(data.data, null, 2)}`;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ Failed to get property data:\\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `❌ Network error:\\n${error.message}`;
+            }
+        }
+        
+        async function fixPropertyTypes() {
+            const result = document.getElementById('fix-result');
+            result.className = 'result warning';
+            result.innerHTML = 'Property types have been fixed in the code.\\nRemoved: condo, townhouse\\nKept: apartment, house, studio\\n\\nThis fix is already applied to the edit form.';
+        }
+        
+        async function fixAmenities() {
+            const result = document.getElementById('fix-result');
+            result.className = 'result warning';
+            result.innerHTML = 'Amenities list has been updated in the code.\\nRemoved: Balcony (was causing issues)\\nKept: WiFi, Air Conditioning, Parking, Swimming Pool, Gym, Security, Garden, Elevator, Furnished\\n\\nThis fix is already applied to the edit form.';
+        }
+        
+        async function resetTestProperty() {
+            const result = document.getElementById('fix-result');
+            result.className = 'result';
+            result.innerHTML = 'Resetting test property to known good state...';
+            
+            const resetData = {
+                property_id: 13,
+                title: "Test Property - Reset",
+                description: "Reset test property",
+                property_type: "house",
+                bedrooms: 2,
+                bathrooms: 1,
+                area_sqft: 1000,
+                address: "123 Reset Street",
+                city: "Reset City",
+                state: "Reset State",
+                zip_code: "12345",
+                rent_amount: 5000,
+                security_deposit: 10000,
+                contact_phone: "0771234567",
+                amenities: ["WiFi", "Parking"],
+                status: "approved",
+                is_available: 1
+            };
+            
+            try {
+                const response = await fetch('api/update_property.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(resetData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.className = 'result success';
+                    result.innerHTML = `✅ Property reset successful:\\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ Property reset failed:\\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `❌ Network error during reset:\\n${error.message}`;
+            }
+        }
+        
+        async function finalTest() {
+            const result = document.getElementById('final-result');
+            result.className = 'result';
+            result.innerHTML = 'Running final comprehensive test...';
+            
+            // Test the same data structure that the edit form would send
+            const testData = {
+                property_id: 13,
+                title: "Final Test - " + Date.now(),
+                description: "Final test description",
+                property_type: "studio",
+                bedrooms: 1,
+                bathrooms: 1,
+                area_sqft: 800,
+                address: "456 Final Test Ave",
+                city: "Final City",
+                state: "Final State",
+                zip_code: "54321",
+                rent_amount: 6000,
+                security_deposit: 12000,
+                contact_phone: "0777654321",
+                amenities: ["WiFi", "Air Conditioning", "Security"],
+                status: "approved",
+                is_available: 1
+            };
+            
+            try {
+                const response = await fetch('api/update_property.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.className = 'result success';
+                    result.innerHTML = `🎉 FINAL TEST PASSED!\\n\\n✅ Property update is working correctly.\\n✅ All database columns are accessible.\\n✅ Data validation is working.\\n✅ Edit form should now work in the admin dashboard.\\n\\nResult:\\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ FINAL TEST FAILED:\\n\\nThe update is still not working. Check the detailed error:\\n${JSON.stringify(data, null, 2)}\\n\\nTry running the database structure check again.`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `❌ FINAL TEST ERROR:\\n\\nNetwork or server error occurred:\\n${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

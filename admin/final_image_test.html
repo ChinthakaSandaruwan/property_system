@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Image Test - Property Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        .test-section h2 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .test-button {
+            display: inline-block;
+            margin: 10px;
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #5a67d8;
+        }
+        .test-button.success {
+            background: #48bb78;
+        }
+        .test-button.warning {
+            background: #ed8936;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+        }
+        .status.success {
+            background: #e8f5e8;
+            border-left: 4px solid #48bb78;
+            color: #22543d;
+        }
+        .status.error {
+            background: #ffeaea;
+            border-left: 4px solid #e53e3e;
+            color: #742a2a;
+        }
+        .status.info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            color: #1565c0;
+        }
+        .image-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .image-preview img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-check-circle"></i> Final Image Display Test</h1>
+        
+        <div class="test-section">
+            <h2><i class="fas fa-info-circle"></i> Test Summary</h2>
+            <p>This page performs a comprehensive test of the image display functionality in the property details modal.</p>
+            <p><strong>What we're testing:</strong></p>
+            <ul>
+                <li>Property data loading from API</li>
+                <li>Image path resolution</li>
+                <li>Image loading success/failure</li>
+                <li>Error handling and debugging info</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-play-circle"></i> Run Tests</h2>
+            <button class="test-button" onclick="testPropertyLoad()">
+                <i class="fas fa-database"></i> Test Property Data Loading
+            </button>
+            <button class="test-button" onclick="testImagePaths()">
+                <i class="fas fa-images"></i> Test Image Path Resolution
+            </button>
+            <button class="test-button" onclick="simulatePropertyModal()">
+                <i class="fas fa-modal"></i> Simulate Property Modal
+            </button>
+            <div id="test-results" class="status info" style="display: none;">
+                Test results will appear here...
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-eye"></i> Image Preview</h2>
+            <p>Direct image preview using the same paths as the modal:</p>
+            <div id="image-preview" class="image-preview">
+                <!-- Images will be loaded here -->
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-tachometer-alt"></i> Dashboard Actions</h2>
+            <a href="dashboard.php#properties" class="test-button success">
+                <i class="fas fa-home"></i> Go to Properties Management
+            </a>
+            <a href="quick_image_test.html" class="test-button">
+                <i class="fas fa-image"></i> Quick Image Test
+            </a>
+            <a href="test_image_paths.html" class="test-button warning">
+                <i class="fas fa-cogs"></i> Full Path Tests
+            </a>
+        </div>
+    </div>
+
+    <script>
+        async function testPropertyLoad() {
+            const resultDiv = document.getElementById('test-results');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'status info';
+            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading property data...';
+
+            try {
+                const response = await fetch('api/property_actions.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'view',
+                        property_id: '13'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    resultDiv.className = 'status success';
+                    resultDiv.innerHTML = `
+                        <strong>✅ Property Data Loaded Successfully!</strong><br>
+                        Property: ${result.data.title}<br>
+                        Owner: ${result.data.owner_name}<br>
+                        Images: ${result.data.images ? result.data.images.length : 0}<br>
+                        Image files: ${result.data.images ? result.data.images.join(', ') : 'None'}<br>
+                        <br>
+                        <strong>Full API Response:</strong><br>
+                        <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                    `;
+                    
+                    // Store data for other tests
+                    window.testPropertyData = result.data;
+                } else {
+                    resultDiv.className = 'status error';
+                    resultDiv.innerHTML = `<strong>❌ Failed to load property data:</strong> ${result.message || 'Unknown error'}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'status error';
+                resultDiv.innerHTML = `<strong>❌ Error loading property data:</strong> ${error.message}`;
+            }
+        }
+
+        async function testImagePaths() {
+            const resultDiv = document.getElementById('test-results');
+            const previewDiv = document.getElementById('image-preview');
+            
+            if (!window.testPropertyData) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'status error';
+                resultDiv.innerHTML = '❌ Please run "Test Property Data Loading" first!';
+                return;
+            }
+
+            const images = window.testPropertyData.images || [];
+            
+            if (images.length === 0) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'status info';
+                resultDiv.innerHTML = 'ℹ️ No images to test for this property.';
+                return;
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'status info';
+            resultDiv.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Testing ${images.length} images...`;
+
+            previewDiv.innerHTML = '';
+            let successCount = 0;
+            let errorCount = 0;
+
+            const testPromises = images.map((image, index) => {
+                return new Promise((resolve) => {
+                    const imagePath = `/rental_system/uploads/properties/${image}`;
+                    
+                    const imgElement = document.createElement('img');
+                    imgElement.src = imagePath;
+                    imgElement.alt = `Property Image ${index + 1}`;
+                    
+                    imgElement.onload = () => {
+                        successCount++;
+                        resolve({ success: true, image, path: imagePath });
+                    };
+                    
+                    imgElement.onerror = () => {
+                        errorCount++;
+                        resolve({ success: false, image, path: imagePath });
+                    };
+                    
+                    previewDiv.appendChild(imgElement);
+                });
+            });
+
+            const results = await Promise.all(testPromises);
+            
+            resultDiv.className = errorCount > 0 ? 'status error' : 'status success';
+            resultDiv.innerHTML = `
+                <strong>${errorCount > 0 ? '⚠️' : '✅'} Image Path Test Results:</strong><br>
+                Total Images: ${images.length}<br>
+                Successfully Loaded: ${successCount}<br>
+                Failed to Load: ${errorCount}<br>
+                <br>
+                <strong>Image Paths Used:</strong><br>
+                ${results.map(r => `${r.success ? '✅' : '❌'} ${r.path}`).join('<br>')}
+                <br><br>
+                <strong>Base Path:</strong> /rental_system/uploads/properties/
+            `;
+        }
+
+        function simulatePropertyModal() {
+            const resultDiv = document.getElementById('test-results');
+            
+            if (!window.testPropertyData) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'status error';
+                resultDiv.innerHTML = '❌ Please run "Test Property Data Loading" first!';
+                return;
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'status info';
+            resultDiv.innerHTML = `
+                <strong>🎭 Simulating Property Modal...</strong><br>
+                This is the exact HTML structure that will be used in the modal:<br><br>
+                <strong>Image Section HTML:</strong><br>
+                <textarea style="width: 100%; height: 200px; margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+${generateImageSectionHtml(window.testPropertyData)}
+                </textarea>
+                <br>
+                <strong>✅ Modal HTML generated successfully!</strong><br>
+                You can now test the actual modal by going to the Properties Management page.
+            `;
+        }
+
+        function generateImageSectionHtml(property) {
+            if (!property.images || property.images.length === 0) {
+                return `
+            <div style="margin-bottom: 30px; text-align: center; padding: 40px; background: #f7fafc; border-radius: 8px;">
+                <i class="fas fa-image" style="font-size: 3rem; color: #cbd5e0; margin-bottom: 15px;"></i>
+                <h3 style="color: #718096; margin: 0;">No Images Available</h3>
+                <p style="color: #a0aec0; margin: 5px 0 0;">This property doesn't have any images uploaded.</p>
+            </div>`;
+            }
+
+            return `
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: #2d3748; margin-bottom: 15px;">
+                    <i class="fas fa-images"></i> Property Images (${property.images.length})
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    ${property.images.map((image, index) => `
+                        <div style="position: relative; background: #f7fafc; border-radius: 8px; overflow: hidden;">
+                            <img src="/rental_system/uploads/properties/${image}" alt="Property Image ${index + 1}" style="
+                                width: 100%;
+                                height: 150px;
+                                object-fit: cover;
+                                cursor: pointer;
+                                transition: opacity 0.3s ease;
+                            " onclick="window.open('/rental_system/uploads/properties/${image}', '_blank')" 
+                               onload="this.style.opacity='1'; this.nextElementSibling.style.display='none';"
+                               onerror="this.style.display='none'; this.nextElementSibling.innerHTML='<i class=\\"fas fa-exclamation-triangle\\"></i> Image not found<br><small>${image}</small>'; console.error('Failed to load image:', '${image}');"
+                               style="opacity: 0;">
+                            <div style="
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                width: 100%;
+                                height: 150px;
+                                background: #e2e8f0;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: #4a5568;
+                                font-size: 14px;
+                                text-align: center;
+                                padding: 20px;
+                            ">
+                                <i class="fas fa-spinner fa-spin"></i> Loading...
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="margin-top: 10px; padding: 10px; background: #f7fafc; border-radius: 6px; font-size: 12px; color: #4a5568;">
+                    <strong>Debug Info:</strong> Images path: /rental_system/uploads/properties/<br>
+                    <strong>Images:</strong> ${property.images.join(', ')}
+                </div>
+            </div>`;
+        }
+
+        // Auto-run property load test on page load
+        window.addEventListener('load', () => {
+            console.log('Final Image Test Page Loaded');
+            testPropertyLoad();
+        });
+    </script>
+</body>
+</html>

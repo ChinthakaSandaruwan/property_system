@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Image Upload - Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-button {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .test-button:hover {
+            background: #5a67d8;
+        }
+        .instruction {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+        .feature-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .feature-list h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .feature-list ul {
+            padding-left: 20px;
+        }
+        .feature-list li {
+            margin: 8px 0;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-images"></i> Image Upload Test Page</h1>
+        
+        <div class="instruction">
+            <h3><i class="fas fa-info-circle"></i> Testing Instructions</h3>
+            <p>The simplified admin dashboard now includes enhanced image upload functionality. Click the button below to access the dashboard and test the new features.</p>
+        </div>
+
+        <a href="dashboard.php" class="test-button">
+            <i class="fas fa-tachometer-alt"></i> Open Admin Dashboard
+        </a>
+
+        <div class="feature-list">
+            <h3><i class="fas fa-star"></i> New Image Upload Features</h3>
+            <ul>
+                <li><strong>Multiple Image Selection:</strong> Select up to 10 images per property</li>
+                <li><strong>Drag & Drop Support:</strong> Drag images directly to the upload area</li>
+                <li><strong>Image Preview:</strong> See thumbnails of selected images before upload</li>
+                <li><strong>File Validation:</strong> Automatic validation for file type and size</li>
+                <li><strong>Remove Images:</strong> Click the × button to remove unwanted images</li>
+                <li><strong>Supported Formats:</strong> JPG, PNG, WebP (max 5MB each)</li>
+            </ul>
+        </div>
+
+        <div class="instruction">
+            <h3><i class="fas fa-clipboard-check"></i> How to Test</h3>
+            <ol>
+                <li>Click "Open Admin Dashboard" above</li>
+                <li>Navigate to "Properties Management"</li>
+                <li>Click "Add New Property" button</li>
+                <li>Scroll down to the "Property Images" section</li>
+                <li>Test drag & drop or click to browse images</li>
+                <li>Fill out other required fields</li>
+                <li>Submit the form to create a property with images</li>
+            </ol>
+        </div>
+
+        <div class="feature-list">
+            <h3><i class="fas fa-cogs"></i> Technical Details</h3>
+            <ul>
+                <li><strong>Frontend:</strong> Enhanced JavaScript with drag & drop support</li>
+                <li><strong>Backend API:</strong> <code>admin_add_property_with_images.php</code></li>
+                <li><strong>Storage:</strong> Images stored in <code>uploads/properties/</code></li>
+                <li><strong>Database:</strong> Image filenames stored as JSON in properties table</li>
+                <li><strong>Validation:</strong> Server-side validation for security</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Image Upload Test Page loaded');
+            console.log('Ready to test the new image upload functionality!');
+        });
+    </script>
+</body>
+</html>

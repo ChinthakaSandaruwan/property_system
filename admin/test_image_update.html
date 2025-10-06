@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Image Update Functionality</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Image Update Functionality Test</h1>
+    
+    <div class="test-section">
+        <h3>Test 1: Update Property with Image Removal Only</h3>
+        <button onclick="testImageRemoval()">Test Image Removal</button>
+        <div id="result1"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 2: Update Property with New Images Only</h3>
+        <input type="file" id="testFiles" multiple accept="image/*">
+        <button onclick="testImageUpload()">Test Image Upload</button>
+        <div id="result2"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 3: Update Property with Both Removal and New Images</h3>
+        <input type="file" id="testFiles2" multiple accept="image/*">
+        <button onclick="testBothOperations()">Test Both Operations</button>
+        <div id="result3"></div>
+    </div>
+
+    <script>
+        async function testImageRemoval() {
+            const result = document.getElementById('result1');
+            result.innerHTML = '<div class="info">Testing image removal...</div>';
+            
+            try {
+                const response = await fetch('api/update_property.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        property_id: 1, // Assuming property ID 1 exists
+                        title: 'Test Property - Image Removal',
+                        property_type: 'apartment',
+                        bedrooms: 2,
+                        bathrooms: 1,
+                        rent_amount: 25000,
+                        security_deposit: 50000,
+                        address: 'Test Address',
+                        city: 'Colombo',
+                        state: 'Western',
+                        contact_phone: '0771234567',
+                        status: 'approved',
+                        is_available: 1,
+                        images_to_remove: ['sample_image.jpg'] // Replace with actual image filename
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = `<div class="success">✓ Image removal test passed: ${data.message}</div>`;
+                } else {
+                    result.innerHTML = `<div class="error">✗ Image removal test failed: ${data.message}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">✗ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testImageUpload() {
+            const result = document.getElementById('result2');
+            const fileInput = document.getElementById('testFiles');
+            
+            if (!fileInput.files.length) {
+                result.innerHTML = '<div class="error">Please select at least one image file</div>';
+                return;
+            }
+            
+            result.innerHTML = '<div class="info">Testing image upload...</div>';
+            
+            try {
+                const formData = new FormData();
+                const updateData = {
+                    property_id: 1, // Assuming property ID 1 exists
+                    title: 'Test Property - Image Upload',
+                    property_type: 'apartment',
+                    bedrooms: 2,
+                    bathrooms: 1,
+                    rent_amount: 25000,
+                    security_deposit: 50000,
+                    address: 'Test Address',
+                    city: 'Colombo',
+                    state: 'Western',
+                    contact_phone: '0771234567',
+                    status: 'approved',
+                    is_available: 1
+                };
+                
+                formData.append('update_data', JSON.stringify(updateData));
+                
+                // Add selected files
+                Array.from(fileInput.files).forEach((file) => {
+                    formData.append('new_images[]', file);
+                });
+                
+                const response = await fetch('api/update_property.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = `<div class="success">✓ Image upload test passed: ${data.message}</div>`;
+                } else {
+                    result.innerHTML = `<div class="error">✗ Image upload test failed: ${data.message}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">✗ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testBothOperations() {
+            const result = document.getElementById('result3');
+            const fileInput = document.getElementById('testFiles2');
+            
+            if (!fileInput.files.length) {
+                result.innerHTML = '<div class="error">Please select at least one image file</div>';
+                return;
+            }
+            
+            result.innerHTML = '<div class="info">Testing both removal and upload...</div>';
+            
+            try {
+                const formData = new FormData();
+                const updateData = {
+                    property_id: 1, // Assuming property ID 1 exists
+                    title: 'Test Property - Both Operations',
+                    property_type: 'apartment',
+                    bedrooms: 2,
+                    bathrooms: 1,
+                    rent_amount: 25000,
+                    security_deposit: 50000,
+                    address: 'Test Address',
+                    city: 'Colombo',
+                    state: 'Western',
+                    contact_phone: '0771234567',
+                    status: 'approved',
+                    is_available: 1,
+                    images_to_remove: ['sample_image.jpg'] // Replace with actual image filename
+                };
+                
+                formData.append('update_data', JSON.stringify(updateData));
+                
+                // Add selected files
+                Array.from(fileInput.files).forEach((file) => {
+                    formData.append('new_images[]', file);
+                });
+                
+                const response = await fetch('api/update_property.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = `<div class="success">✓ Combined operations test passed: ${data.message}</div>`;
+                } else {
+                    result.innerHTML = `<div class="error">✗ Combined operations test failed: ${data.message}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">✗ Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

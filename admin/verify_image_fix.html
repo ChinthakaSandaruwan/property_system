@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Image Fix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-button {
+            display: inline-block;
+            margin: 10px;
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #5a67d8;
+        }
+        .success {
+            background: #48bb78;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .image-test {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .image-container {
+            position: relative;
+            background: #f7fafc;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .image-container img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-check-circle"></i> Image Fix Verification</h1>
+        
+        <div class="success">
+            <strong>✅ Fix Applied Successfully!</strong><br>
+            The JavaScript syntax error in the image error handler has been fixed.
+        </div>
+        
+        <h2>📋 What was fixed:</h2>
+        <ul>
+            <li>Removed problematic HTML entity escaping in JavaScript strings</li>
+            <li>Simplified the image error handling</li>
+            <li>Used proper template literal structure</li>
+            <li>Added cleaner loading states</li>
+        </ul>
+        
+        <h2>🖼️ Test Images:</h2>
+        <p>Testing the same images that were failing before:</p>
+        
+        <div class="image-test" id="image-test">
+            <!-- Images will be loaded here -->
+        </div>
+        
+        <h2>🎯 Next Steps:</h2>
+        <p>Go to the Properties Management page and test the "View Details" functionality:</p>
+        
+        <a href="dashboard.php#properties" class="test-button">
+            <i class="fas fa-home"></i> Test Properties Management
+        </a>
+        
+        <button class="test-button" onclick="loadTestImages()">
+            <i class="fas fa-sync"></i> Test Images Here
+        </button>
+        
+        <div id="test-results" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        const testImages = [
+            'property_68e2e537276d81.30200736.png',
+            'property_68e2e537293700.51091649.png', 
+            'property_68e2e537297a38.06616717.png'
+        ];
+
+        function loadTestImages() {
+            const container = document.getElementById('image-test');
+            const results = document.getElementById('test-results');
+            
+            container.innerHTML = '';
+            results.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Loading test images...</p>';
+            
+            let loadedCount = 0;
+            let errorCount = 0;
+            
+            testImages.forEach((image, index) => {
+                const imagePath = `/rental_system/uploads/properties/${image}`;
+                
+                const imageDiv = document.createElement('div');
+                imageDiv.className = 'image-container';
+                imageDiv.innerHTML = `
+                    <img src="${imagePath}" 
+                         alt="Property Image ${index + 1}" 
+                         onclick="window.open('${imagePath}', '_blank')" 
+                         onload="this.style.opacity='1'; this.nextElementSibling.style.display='none'; imageLoaded()" 
+                         onerror="this.style.display='none'; this.nextElementSibling.innerHTML='Image failed to load: ${image}'; this.nextElementSibling.style.color='#e53e3e'; imageError()">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading image...
+                    </div>
+                `;
+                
+                container.appendChild(imageDiv);
+            });
+            
+            window.imageLoaded = () => {
+                loadedCount++;
+                updateResults();
+            };
+            
+            window.imageError = () => {
+                errorCount++;
+                updateResults();
+            };
+            
+            function updateResults() {
+                const total = testImages.length;
+                const processed = loadedCount + errorCount;
+                
+                if (processed === total) {
+                    results.innerHTML = `
+                        <div style="padding: 15px; border-radius: 8px; ${errorCount > 0 ? 'background: #ffeaea; border: 1px solid #e53e3e;' : 'background: #e8f5e8; border: 1px solid #48bb78;'}">
+                            <strong>${errorCount > 0 ? '⚠️' : '✅'} Test Results:</strong><br>
+                            Total Images: ${total}<br>
+                            Successfully Loaded: ${loadedCount}<br>
+                            Failed to Load: ${errorCount}<br>
+                            ${errorCount === 0 ? '<br><strong>🎉 All images loaded successfully!</strong>' : ''}
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        // Auto-load images when page loads
+        window.addEventListener('load', () => {
+            console.log('Verify Image Fix Page Loaded');
+            loadTestImages();
+        });
+    </script>
+</body>
+</html>

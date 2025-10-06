@@ -1,0 +1,379 @@
+/* 
+ * Comprehensive Button and Link Utilities
+ * This file provides additional utility classes for buttons and links
+ * Include this after your main CSS files for enhanced styling
+ */
+
+/* Additional Button Utilities */
+
+/* Button with Icon Support */
+.btn-with-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-with-icon i {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+/* Rounded Button Variants */
+.btn-rounded {
+    border-radius: 25px;
+}
+
+.btn-pill {
+    border-radius: 50px;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+/* Floating Action Button */
+.btn-fab {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #38a169 0%, #2d7d32 100%);
+    color: white;
+    border: none;
+}
+
+.btn-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(56, 161, 105, 0.4);
+}
+
+.btn-fab i {
+    font-size: 1.5rem;
+}
+
+/* Mini FAB */
+.btn-mini-fab {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, #38a169 0%, #2d7d32 100%);
+    color: white;
+    border: none;
+    margin: 0.25rem;
+}
+
+.btn-mini-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(56, 161, 105, 0.4);
+}
+
+/* Button Groups */
+.btn-toolbar {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.btn-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.btn-group-vertical .btn {
+    width: 100%;
+}
+
+/* Social Media Buttons */
+.btn-facebook {
+    background: #1877f2;
+    color: white;
+}
+
+.btn-facebook:hover {
+    background: #166fe5;
+}
+
+.btn-google {
+    background: #db4437;
+    color: white;
+}
+
+.btn-google:hover {
+    background: #c23321;
+}
+
+.btn-twitter {
+    background: #1da1f2;
+    color: white;
+}
+
+.btn-twitter:hover {
+    background: #0d8bd9;
+}
+
+/* Ghost/Minimal Buttons */
+.btn-ghost {
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    color: #4a5568;
+}
+
+.btn-ghost:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    color: #2d3748;
+}
+
+.btn-ghost-primary {
+    background: transparent;
+    border: 1px solid #38a169;
+    color: #38a169;
+}
+
+.btn-ghost-primary:hover {
+    background: rgba(56, 161, 105, 0.1);
+    border-color: #2f855a;
+    color: #2f855a;
+}
+
+/* Additional Link Utilities */
+
+/* Animated Underline Links */
+.link-animated {
+    position: relative;
+    text-decoration: none;
+    color: #38a169;
+    font-weight: 500;
+}
+
+.link-animated::before {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(135deg, #38a169, #2f855a);
+    transition: width 0.3s ease;
+}
+
+.link-animated:hover::before {
+    width: 100%;
+}
+
+/* Link with Background Highlight */
+.link-highlight {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.link-highlight:hover {
+    background: rgba(56, 161, 105, 0.1);
+    text-decoration: none;
+}
+
+/* Badge-style Links */
+.link-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    background: rgba(56, 161, 105, 0.1);
+    color: #38a169;
+}
+
+.link-badge:hover {
+    background: rgba(56, 161, 105, 0.2);
+    color: #2f855a;
+    transform: translateY(-1px);
+}
+
+/* External Link Indicator */
+.link-external::after {
+    content: '↗';
+    margin-left: 0.25rem;
+    font-size: 0.875rem;
+    opacity: 0.7;
+}
+
+/* Download Link */
+.link-download::before {
+    content: '⬇';
+    margin-right: 0.25rem;
+    font-size: 0.875rem;
+}
+
+/* Back Link */
+.link-back::before {
+    content: '←';
+    margin-right: 0.5rem;
+    font-weight: bold;
+}
+
+/* Breadcrumb Links */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.breadcrumb-item {
+    color: #6c757d;
+}
+
+.breadcrumb-item::after {
+    content: '/';
+    margin-left: 0.5rem;
+    color: #dee2e6;
+}
+
+.breadcrumb-item:last-child::after {
+    display: none;
+}
+
+.breadcrumb-item.active {
+    color: #38a169;
+    font-weight: 500;
+}
+
+/* Pagination Links */
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 1rem 0;
+}
+
+.page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.75rem;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    text-decoration: none;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    color: #4a5568;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.page-link:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    color: #2d3748;
+}
+
+.page-link.active {
+    background: #38a169;
+    border-color: #38a169;
+    color: white;
+}
+
+.page-link:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Special Link States */
+.link-muted {
+    color: #6c757d !important;
+}
+
+.link-muted:hover {
+    color: #495057 !important;
+}
+
+.link-white {
+    color: white !important;
+}
+
+.link-white:hover {
+    color: rgba(255, 255, 255, 0.8) !important;
+    text-decoration: underline;
+}
+
+.link-no-decoration {
+    text-decoration: none !important;
+}
+
+.link-no-decoration:hover {
+    text-decoration: none !important;
+}
+
+/* Responsive Button Utilities */
+@media (max-width: 768px) {
+    .btn-responsive {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .btn-group-responsive {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .btn-group-responsive .btn {
+        width: 100%;
+    }
+    
+    .btn-fab {
+        width: 48px;
+        height: 48px;
+        bottom: 1rem;
+        right: 1rem;
+    }
+    
+    .btn-fab i {
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn-toolbar .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .btn,
+    button,
+    .btn-fab,
+    .btn-mini-fab {
+        display: none !important;
+    }
+    
+    a {
+        color: #000 !important;
+        text-decoration: underline !important;
+    }
+}
