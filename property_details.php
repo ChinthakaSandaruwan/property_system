@@ -2,6 +2,10 @@
 session_start();
 require_once 'includes/config.php';
 require_once 'includes/functions.php';
+require_once 'includes/settings_helper.php';
+
+// Get site name
+$site_name = getSiteName();
 
 $property_id = $_GET['id'] ?? null;
 if (!$property_id) {
@@ -87,7 +91,7 @@ if (isset($property['amenities']) && $property['amenities']) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($property['title']) ?> - SmartRent</title>
+    <title><?= htmlspecialchars($property['title']) ?> - <?= htmlspecialchars($site_name) ?></title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .property-hero {

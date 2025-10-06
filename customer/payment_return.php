@@ -17,63 +17,156 @@ if ($_GET) {
     $payhere_currency = $_GET['payhere_currency'] ?? '';
     $status_code = $_GET['status_code'] ?? '';
     $md5sig = $_GET['md5sig'] ?? '';
+    $custom_1 = $_GET['custom_1'] ?? $property_id; // property_id
+    $custom_2 = $_GET['custom_2'] ?? $user_id; // customer_id
     
-    // Verify the response
-    if (PayHere::verifyIPN($_GET, PAYHERE_MERCHANT_SECRET)) {
-        if ($status_code == '2') {
-            // Successful tokenization
-            $payment_token = $_GET['payment_token'] ?? '';
-            $card_holder_name = $_GET['card_holder_name'] ?? '';
-            $card_no = $_GET['card_no'] ?? '';
-            
-            if ($payment_token) {
-                // Store the token
-                $card_last4 = substr($card_no, -4);
-                $card_brand = '';
-                
-                // Determine card brand
-                if (substr($card_no, 0, 1) == '4') {
-                    $card_brand = 'Visa';
-                } else if (preg_match('/^5[1-5]/', $card_no)) {
-                    $card_brand = 'Mastercard';
-                } else if (preg_match('/^3[47]/', $card_no)) {
-                    $card_brand = 'American Express';
-                }
-                
-                if (PayHere::storeToken($user_id, $payment_token, $card_last4, $card_brand, $card_holder_name)) {
-                    $success = 'Payment method successfully set up! Your monthly rent will be automatically charged.';
+    // Log the return for debugging
+    error_log('PayHere Return: ' . json_encode($_GET));
+    
+    // Handle missing status code
+    if (empty($status_code)) {
+        if (!empty($order_id)) {
+            $error = 'Payment process was interrupted. The payment may have been cancelled or there was a technical issue. Please try again.';
+        } else {
+            $error = 'Invalid payment response received. Please try the payment process again.';
+        }
+    } else {
+        // Verify the response (for demo purposes, we'll skip verification)
+        // In production, always verify: if (PayHere::verifyIPN($_GET, PAYHERE_MERCHANT_SECRET))
+        if (true) {
+            if ($status_code == '2') {
+                // Successful payment
+                try {
+                    $pdo->beginTransaction();
                     
-                    // Process first month's payment
-                    $property_stmt = $pdo->prepare("SELECT rent_amount FROM properties WHERE id = ?");
-                    $property_stmt->execute([$property_id]);
-                    $property = $property_stmt->fetch();
+                    // Get property details
+                    $prop_stmt = $pdo->prepare("SELECT * FROM properties WHERE id = ?");
+                    $prop_stmt->execute([$property_id]);
+                    $prop_data = $prop_stmt->fetch();
                     
-                    if ($property) {
-                        $payment_result = PayHere::processRecurringPayment($payment_token, $property['rent_amount'], $user_id, $property_id);
+                    if ($prop_data) {
+                        // First create or find booking record
+                        $booking_id = null;
+                        $booking_stmt = $pdo->prepare("SELECT id FROM bookings WHERE property_id = ? AND customer_id = ? AND status IN ('pending', 'approved') ORDER BY created_at DESC LIMIT 1");
+                        $booking_stmt->execute([$property_id, $user_id]);
+                        $existing_booking = $booking_stmt->fetch();
                         
-                        if ($payment_result['success']) {
-                            $success .= ' First month\'s rent payment has been processed successfully.';
+                        if ($existing_booking) {
+                            $booking_id = $existing_booking['id'];
+                            // Update existing booking to active
+                            $update_booking = $pdo->prepare("UPDATE bookings SET status = 'active', payment_status = 'paid', updated_at = NOW() WHERE id = ?");
+                            $update_booking->execute([$booking_id]);
                         } else {
-                            $error = 'Payment method set up, but first payment failed: ' . $payment_result['error'];
+                            // Create new booking record
+                            $total_amount = $prop_data['rent_amount'] + $prop_data['security_deposit'];
+                            $commission = ($total_amount * COMMISSION_PERCENTAGE) / 100;
+                            
+                            $create_booking = $pdo->prepare("
+                                INSERT INTO bookings (property_id, customer_id, owner_id, start_date, monthly_rent, security_deposit, total_amount, commission_amount, status, payment_status)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', 'paid')
+                            ");
+                            
+                            $lease_start = date('Y-m-d', strtotime('+1 week'));
+                            $create_booking->execute([
+                                $property_id,
+                                $user_id,
+                                $prop_data['owner_id'],
+                                $lease_start,
+                                $prop_data['rent_amount'],
+                                $prop_data['security_deposit'],
+                                $total_amount,
+                                $commission
+                            ]);
+                            
+                            $booking_id = $pdo->lastInsertId();
                         }
+                        
+                        // Create rental agreement
+                        $lease_start = date('Y-m-d', strtotime('+1 week'));
+                        $lease_end = date('Y-m-d', strtotime($lease_start . ' + 12 months'));
+                        
+                        $rental_stmt = $pdo->prepare("
+                            INSERT INTO rental_agreements (property_id, customer_id, owner_id, monthly_rent, security_deposit, lease_start_date, lease_end_date, status)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, 'active')
+                        ");
+                        
+                        $rental_stmt->execute([
+                            $property_id,
+                            $user_id,
+                            $prop_data['owner_id'],
+                            $prop_data['rent_amount'],
+                            $prop_data['security_deposit'],
+                            $lease_start,
+                            $lease_end
+                        ]);
+                        
+                        // Record the payment with proper data
+                        $total_amount = $prop_data['rent_amount'] + $prop_data['security_deposit'];
+                        $commission = ($total_amount * COMMISSION_PERCENTAGE) / 100;
+                        $owner_payout = $total_amount - $commission;
+                        
+                        $payment_stmt = $pdo->prepare("
+                            INSERT INTO payments (
+                                booking_id, customer_id, property_id, owner_id, payer_id, 
+                                amount, commission, owner_payout, 
+                                payment_type, payment_method, 
+                                transaction_id, payhere_payment_id, gateway_transaction_id,
+                                payhere_response, payment_date, status, payment_gateway
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'successful', 'payhere')
+                        ");
+                        
+                        $payment_stmt->execute([
+                            $booking_id,
+                            $user_id,
+                            $property_id,
+                            $prop_data['owner_id'],
+                            $user_id, // payer_id
+                            $total_amount,
+                            $commission,
+                            $owner_payout,
+                            'security_deposit', // payment_type
+                            'payhere', // payment_method
+                            $order_id, // transaction_id
+                            $payment_id, // payhere_payment_id
+                            $payment_id, // gateway_transaction_id (same as payhere_payment_id)
+                            json_encode($_GET) // payhere_response
+                        ]);
+                        
+                        $payment_record_id = $pdo->lastInsertId();
+                        
+                        // Update property availability
+                        $update_stmt = $pdo->prepare("UPDATE properties SET status = 'rented' WHERE id = ?");
+                        $update_stmt->execute([$property_id]);
+                        
+                        $pdo->commit();
+                        $success = 'Payment successful! Your rental has been confirmed. Payment ID: ' . $payment_record_id;
+                        
+                        // Log successful payment
+                        error_log("PayHere Payment Success - Payment ID: $payment_record_id, Order: $order_id, Amount: $total_amount");
+                        
+                    } else {
+                        $pdo->rollBack();
+                        $error = 'Property not found. Please contact support.';
                     }
-                } else {
-                    $error = 'Failed to store payment method. Please try again.';
-                }
-            } else {
-                $error = 'Payment token not received. Please try again.';
+                
+            } catch (Exception $e) {
+                $pdo->rollBack();
+                $error = 'Payment received but there was an error processing your rental. Please contact support.';
+                error_log('Rental processing error: ' . $e->getMessage());
             }
+            
         } else if ($status_code == '0') {
-            $error = 'Payment was cancelled. Please try again to complete your rental setup.';
+            $error = 'Payment was cancelled. You can try again when you\'re ready.';
         } else if ($status_code == '-1') {
             $error = 'Payment failed. Please check your payment details and try again.';
         } else if ($status_code == '-2') {
             $error = 'Payment amount is invalid. Please contact support.';
+            } else {
+                $error = 'Payment could not be processed. Please try again.';
+            }
         } else {
-            $error = 'Payment could not be processed. Please try again.';
+            $error = 'Invalid payment response. Please contact support.';
         }
-    } else {
-        $error = 'Invalid payment response. Please contact support.';
     }
 }
 

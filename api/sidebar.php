@@ -1,5 +1,9 @@
 <?php
 require_once '../includes/functions.php';
+require_once '../includes/settings_helper.php';
+
+// Get site name
+$site_name = getSiteName();
 
 header('Content-Type: application/json');
 
@@ -208,7 +212,7 @@ function generateSidebarHtml($user_type, $user_name) {
 function generateAdminSidebar($user_name) {
     return '
     <div class="sidebar-header">
-        <div class="sidebar-logo">🏠 SmartRent</div>
+        <div class="sidebar-logo">🏠 ' . htmlspecialchars($site_name) . '</div>
         <div class="sidebar-subtitle">Admin Panel</div>
     </div>
     
@@ -274,7 +278,7 @@ function generateAdminSidebar($user_name) {
 function generateOwnerSidebar($user_name) {
     return '
     <div class="sidebar-header">
-        <div class="sidebar-logo">🏠 SmartRent</div>
+        <div class="sidebar-logo">🏠 ' . htmlspecialchars($site_name) . '</div>
         <div class="sidebar-subtitle">Owner Panel</div>
     </div>
     
@@ -346,7 +350,7 @@ function generateOwnerSidebar($user_name) {
 function generateCustomerSidebar($user_name) {
     return '
     <div class="sidebar-header">
-        <div class="sidebar-logo">🏠 SmartRent</div>
+        <div class="sidebar-logo">🏠 ' . htmlspecialchars($site_name) . '</div>
         <div class="sidebar-subtitle">Customer Portal</div>
     </div>
     

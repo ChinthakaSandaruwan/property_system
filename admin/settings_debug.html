@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-panel { background: #f0f0f0; padding: 20px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        iframe { width: 100%; height: 600px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Admin Settings Debug Panel</h1>
+    
+    <div class="debug-panel">
+        <h3>Test API Endpoints</h3>
+        <button onclick="testSettingsContent()">Test Settings Content API</button>
+        <button onclick="testSettingsActions()">Test Settings Actions API</button>
+        <button onclick="testDatabase()">Test Database Connection</button>
+        <button onclick="openDashboard()">Open Admin Dashboard</button>
+        
+        <div id="test-results" style="margin-top: 20px;"></div>
+    </div>
+    
+    <div class="debug-panel">
+        <h3>Quick Settings Fix</h3>
+        <p>If you can't see the settings form in the admin dashboard, click this button to force show all settings:</p>
+        <button onclick="applySettingsFix()">Apply Settings Visibility Fix</button>
+        <div id="fix-results" style="margin-top: 20px;"></div>
+    </div>
+    
+    <div class="debug-panel">
+        <h3>Direct Settings Form</h3>
+        <iframe src="../debug_admin_settings.php"></iframe>
+    </div>
+
+    <script>
+        async function testSettingsContent() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<p>Testing settings content API...</p>';
+            
+            try {
+                const response = await fetch('api/settings_content.php');
+                const text = await response.text();
+                
+                if (response.ok) {
+                    const hasFormFields = text.includes('site_name') && text.includes('commission_percentage');
+                    const hasGeneralSettings = text.includes('General Settings');
+                    
+                    resultsDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Settings Content API Working</h4>
+                            <p>Response Status: ${response.status}</p>
+                            <p>Contains Site Name Field: ${hasFormFields ? 'Yes' : 'No'}</p>
+                            <p>Contains General Settings Section: ${hasGeneralSettings ? 'Yes' : 'No'}</p>
+                            <details>
+                                <summary>View Response</summary>
+                                <pre style="max-height: 300px; overflow: auto; background: white; padding: 10px; border: 1px solid #ddd;">${text.substring(0, 2000)}...</pre>
+                            </details>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Settings Content API Failed</h4>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function testSettingsActions() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<p>Testing settings actions API...</p>';
+            
+            try {
+                const response = await fetch('api/settings_actions.php', {
+                    method: 'GET',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const result = await response.json();
+                
+                resultsDiv.innerHTML = `
+                    <div class="success">
+                        <h4>✅ Settings Actions API Working</h4>
+                        <p>Response Status: ${response.status}</p>
+                        <p>Settings Count: ${result.data ? result.data.length : 'N/A'}</p>
+                        <details>
+                            <summary>View Settings Data</summary>
+                            <pre style="max-height: 300px; overflow: auto; background: white; padding: 10px; border: 1px solid #ddd;">${JSON.stringify(result, null, 2)}</pre>
+                        </details>
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Settings Actions API Failed</h4>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function testDatabase() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<p>Testing database connection...</p>';
+            
+            try {
+                const response = await fetch('../debug_admin_settings.php');
+                const text = await response.text();
+                
+                if (response.ok && text.includes('Database connected')) {
+                    resultsDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Database Connection Working</h4>
+                            <p>Database is accessible and settings table exists.</p>
+                        </div>
+                    `;
+                } else {
+                    throw new Error('Database test failed');
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Database Connection Failed</h4>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function openDashboard() {
+            window.open('dashboard.php#settings', '_blank');
+        }
+        
+        function applySettingsFix() {
+            const fixResultsDiv = document.getElementById('fix-results');
+            
+            // Create a JavaScript snippet that can fix the settings visibility
+            const fixScript = `
+                // Fix for Settings Visibility Issue
+                console.log('Applying settings fix...');
+                
+                // Force show settings content
+                const settingsContent = document.getElementById('settings-content');
+                if (settingsContent) {
+                    settingsContent.style.display = 'block';
+                    settingsContent.style.visibility = 'visible';
+                    settingsContent.classList.add('active');
+                    console.log('Settings content made visible');
+                }
+                
+                // Make sure all form elements are visible
+                document.querySelectorAll('.widget, .form-group, .form-input, .form-label').forEach(el => {
+                    el.style.display = 'block';
+                    el.style.visibility = 'visible';
+                });
+                
+                // Force navigate to settings
+                if (typeof window.dashboard !== 'undefined' && window.dashboard.navigateToSection) {
+                    window.dashboard.navigateToSection('settings');
+                } else {
+                    console.log('Dashboard navigation not available, trying manual approach');
+                    
+                    // Hide other sections
+                    document.querySelectorAll('.content-section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show settings
+                    if (settingsContent) {
+                        settingsContent.style.display = 'block';
+                    }
+                }
+                
+                console.log('Settings fix applied');
+            `;
+            
+            fixResultsDiv.innerHTML = `
+                <div class="warning">
+                    <h4>🔧 Settings Fix Script Generated</h4>
+                    <p>Copy this script and paste it into the browser console on the admin dashboard:</p>
+                    <textarea rows="10" cols="80" readonly>${fixScript}</textarea>
+                    <p><strong>Instructions:</strong></p>
+                    <ol>
+                        <li>Open Admin Dashboard in a new tab</li>
+                        <li>Press F12 to open Developer Tools</li>
+                        <li>Go to Console tab</li>
+                        <li>Paste the script above and press Enter</li>
+                    </ol>
+                </div>
+            `;
+        }
+        
+        // Auto-run basic tests when page loads
+        window.onload = function() {
+            testDatabase();
+        };
+    </script>
+</body>
+</html>

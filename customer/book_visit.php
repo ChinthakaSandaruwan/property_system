@@ -1,6 +1,10 @@
 <?php
 session_start();
 require_once '../includes/config.php';
+require_once '../includes/settings_helper.php';
+
+// Get site name
+$site_name = getSiteName();
 
 // Check if user is logged in and is a customer
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'customer') {
@@ -81,7 +85,7 @@ $visits = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Property Visit - SmartRent</title>
+    <title>Book Property Visit - <?= htmlspecialchars($site_name) ?></title>
     <style>
         body {
             font-family: Arial, sans-serif;

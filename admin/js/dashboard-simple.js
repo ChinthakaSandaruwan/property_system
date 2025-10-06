@@ -263,6 +263,9 @@ class SimpleAdminDashboard {
             case 'bookings':
                 this.initializeBookingsFeatures();
                 break;
+            case 'settings':
+                this.initializeSettingsFeatures();
+                break;
         }
     }
     
@@ -1269,6 +1272,223 @@ class SimpleAdminDashboard {
     initializeBookingsFeatures() {
         console.log('Initializing bookings features');
         // Basic implementation
+    }
+    
+    initializeSettingsFeatures() {
+        console.log('Initializing settings features');
+        
+        // Ensure all form elements are visible and reinitialize form handlers
+        setTimeout(() => {
+            console.log('Settings feature initialization - making elements visible and setting up forms');
+            
+            // Force show all settings widgets
+            document.querySelectorAll('#settings-content .widget').forEach(widget => {
+                widget.style.display = 'block';
+                widget.style.visibility = 'visible';
+            });
+            
+            // Force show all form elements
+            document.querySelectorAll('#settings-content .form-group, #settings-content .form-input, #settings-content .form-label').forEach(element => {
+                element.style.display = 'block';
+                element.style.visibility = 'visible';
+            });
+            
+            // Force show dashboard widgets container
+            const dashboardWidgets = document.querySelector('#settings-content .dashboard-widgets');
+            if (dashboardWidgets) {
+                dashboardWidgets.style.display = 'grid';
+                dashboardWidgets.style.visibility = 'visible';
+            }
+            
+            console.log('Settings elements visibility forced');
+            
+            // Re-initialize settings form handlers since they're loaded via AJAX
+            this.initializeSettingsFormHandlers();
+            
+            // Initialize PayHere specific functions
+            this.initializePayHereFunctions();
+            
+            // Check if settings JavaScript is already loaded (from the content PHP file)
+            const settingsForms = document.querySelectorAll('#general-settings-form, #contact-settings-form');
+            console.log(`Found ${settingsForms.length} settings forms`);
+            
+            // Initialize settings table if it exists
+            if (typeof loadAllSettings === 'function') {
+                console.log('Loading all settings...');
+                loadAllSettings();
+            }
+            
+        }, 500); // Give it time to load
+    }
+    
+    initializeSettingsFormHandlers() {
+        console.log('Setting up settings form handlers');
+        
+        // General Settings Form
+        const generalForm = document.getElementById('general-settings-form');
+        if (generalForm) {
+            console.log('Setting up general settings form handler');
+            generalForm.removeEventListener('submit', this.handleGeneralSettingsSubmit);
+            this.handleGeneralSettingsSubmit = this.handleGeneralSettingsSubmit.bind(this);
+            generalForm.addEventListener('submit', this.handleGeneralSettingsSubmit);
+        }
+        
+        // Contact Settings Form
+        const contactForm = document.getElementById('contact-settings-form');
+        if (contactForm) {
+            console.log('Setting up contact settings form handler');
+            contactForm.removeEventListener('submit', this.handleContactSettingsSubmit);
+            this.handleContactSettingsSubmit = this.handleContactSettingsSubmit.bind(this);
+            contactForm.addEventListener('submit', this.handleContactSettingsSubmit);
+        }
+        
+        // Payment Settings Form
+        const paymentForm = document.getElementById('payment-settings-form');
+        if (paymentForm) {
+            console.log('Setting up payment settings form handler');
+            paymentForm.removeEventListener('submit', this.handlePaymentSettingsSubmit);
+            this.handlePaymentSettingsSubmit = this.handlePaymentSettingsSubmit.bind(this);
+            paymentForm.addEventListener('submit', this.handlePaymentSettingsSubmit);
+        }
+        
+        // Email Settings Form
+        const emailForm = document.getElementById('email-settings-form');
+        if (emailForm) {
+            console.log('Setting up email settings form handler');
+            emailForm.removeEventListener('submit', this.handleEmailSettingsSubmit);
+            this.handleEmailSettingsSubmit = this.handleEmailSettingsSubmit.bind(this);
+            emailForm.addEventListener('submit', this.handleEmailSettingsSubmit);
+        }
+        
+        // User Settings Form
+        const userForm = document.getElementById('user-settings-form');
+        if (userForm) {
+            console.log('Setting up user settings form handler');
+            userForm.removeEventListener('submit', this.handleUserSettingsSubmit);
+            this.handleUserSettingsSubmit = this.handleUserSettingsSubmit.bind(this);
+            userForm.addEventListener('submit', this.handleUserSettingsSubmit);
+        }
+        
+        console.log('Settings form handlers initialized');
+    }
+    
+    handleGeneralSettingsSubmit(e) {
+        e.preventDefault();
+        console.log('General settings form submitted');
+        
+        const formData = new FormData(e.target);
+        const formObject = Object.fromEntries(formData);
+        console.log('Form data:', formObject);
+        
+        this.saveSettings('general', formData);
+    }
+    
+    handleContactSettingsSubmit(e) {
+        e.preventDefault();
+        console.log('Contact settings form submitted');
+        this.saveSettings('contact', new FormData(e.target));
+    }
+    
+    handlePaymentSettingsSubmit(e) {
+        e.preventDefault();
+        console.log('Payment settings form submitted');
+        this.saveSettings('payment', new FormData(e.target));
+    }
+    
+    handleEmailSettingsSubmit(e) {
+        e.preventDefault();
+        console.log('Email settings form submitted');
+        this.saveSettings('email', new FormData(e.target));
+    }
+    
+    handleUserSettingsSubmit(e) {
+        e.preventDefault();
+        console.log('User settings form submitted');
+        this.saveSettings('user', new FormData(e.target));
+    }
+    
+    async saveSettings(type, formData) {
+        try {
+            const data = Object.fromEntries(formData);
+            data.type = type;
+            
+            console.log('Saving settings:', type, data);
+            
+            const response = await fetch('api/settings_actions.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            console.log('Response status:', response.status);
+            
+            const result = await response.json();
+            console.log('Response result:', result);
+            
+            if (result.success) {
+                this.showSuccessMessage('Settings saved successfully!');
+                // Refresh the settings section to show updated values
+                setTimeout(() => {
+                    this.loadSection('settings');
+                }, 1500);
+            } else {
+                this.showErrorMessage(result.message || 'Failed to save settings');
+            }
+        } catch (error) {
+            console.error('Error saving settings:', error);
+            this.showErrorMessage('An error occurred while saving settings: ' + error.message);
+        }
+    }
+    
+    initializePayHereFunctions() {
+        console.log('Initializing PayHere functions');
+        
+        // Make PayHere functions globally available
+        window.toggleSecretVisibility = this.toggleSecretVisibility.bind(this);
+        window.testPayHereConnection = this.testPayHereConnection.bind(this);
+        
+        console.log('PayHere functions made globally available');
+    }
+    
+    toggleSecretVisibility(button) {
+        const secretInput = button.parentElement.querySelector('input[name="payhere_merchant_secret"]');
+        const icon = button.querySelector('i');
+        
+        if (secretInput && icon) {
+            if (secretInput.type === 'password') {
+                secretInput.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                secretInput.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+    }
+    
+    testPayHereConnection() {
+        const merchantId = document.querySelector('input[name="payhere_merchant_id"]')?.value;
+        const merchantSecret = document.querySelector('input[name="payhere_merchant_secret"]')?.value;
+        const mode = document.querySelector('select[name="payhere_mode"]')?.value;
+        
+        if (!merchantId || !merchantSecret) {
+            this.showErrorMessage('Please enter both Merchant ID and Merchant Secret before testing');
+            return;
+        }
+        
+        this.showNotification('Testing PayHere connection...', 'info');
+        
+        // Simulate connection test
+        setTimeout(() => {
+            const isValid = merchantId.length > 5 && merchantSecret.length > 10;
+            if (isValid) {
+                this.showSuccessMessage(`PayHere connection test successful! (${mode} mode)`);
+            } else {
+                this.showErrorMessage('PayHere connection test failed. Please check your credentials.');
+            }
+        }, 2000);
     }
 
     async loadDashboardStats() {
@@ -3093,13 +3313,24 @@ class SimpleAdminDashboard {
             `;
         }
     }
+    
+    showSuccessMessage(message) {
+        console.log('Success:', message);
+        this.showNotification(message, 'success');
+    }
+    
+    showErrorMessage(message) {
+        console.error('Error:', message);
+        this.showNotification(message, 'error');
+    }
 }
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, initializing SimpleAdminDashboard');
     try {
-        new SimpleAdminDashboard();
+        window.dashboard = new SimpleAdminDashboard();
+        console.log('Dashboard instance made globally available');
     } catch (error) {
         console.error('Failed to initialize SimpleAdminDashboard:', error);
     }

@@ -21,7 +21,50 @@ if (session_status() == PHP_SESSION_NONE) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Rental System</title>
     <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Font Awesome with fallbacks -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" 
+          onerror="this.onerror=null; this.href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'">
+    <!-- Ultimate fallback for Font Awesome -->
+    <script>
+        // Check if Font Awesome loaded, if not, add local fallback styles for essential icons
+        document.addEventListener('DOMContentLoaded', function() {
+            const testElement = document.createElement('i');
+            testElement.className = 'fas fa-home';
+            testElement.style.visibility = 'hidden';
+            testElement.style.position = 'absolute';
+            document.body.appendChild(testElement);
+            
+            const computedStyle = window.getComputedStyle(testElement);
+            if (computedStyle.fontFamily.indexOf('Font Awesome') === -1) {
+                console.log('Font Awesome not loaded, using fallback');
+                // Add basic fallback styles
+                const style = document.createElement('style');
+                style.textContent = `
+                    .fas, .fa { font-family: Arial, sans-serif; }
+                    .fa-home::before { content: '🏠'; }
+                    .fa-cog::before { content: '⚙️'; }
+                    .fa-users::before { content: '👥'; }
+                    .fa-credit-card::before { content: '💳'; }
+                    .fa-chart-bar::before { content: '📊'; }
+                    .fa-calendar-check::before { content: '📅'; }
+                    .fa-tachometer-alt::before { content: '📈'; }
+                    .fa-sign-out-alt::before { content: '🚪'; }
+                    .fa-bars::before { content: '☰'; }
+                    .fa-user-circle::before { content: '👤'; }
+                    .fa-spinner::before { content: '⏳'; }
+                    .fa-building::before { content: '🏢'; }
+                    .fa-dollar-sign::before { content: '$'; }
+                    .fa-eye::before { content: '👁️'; }
+                    .fa-eye-slash::before { content: '🙈'; }
+                    .fa-save::before { content: '💾'; }
+                    .fa-plug::before { content: '🔌'; }
+                    .fa-exclamation-triangle::before { content: '⚠️'; }
+                `;
+                document.head.appendChild(style);
+            }
+            document.body.removeChild(testElement);
+        });
+    </script>
 </head>
 <body>
     <!-- Sidebar -->

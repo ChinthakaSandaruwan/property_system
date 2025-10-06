@@ -267,6 +267,46 @@ class PayHere {
     }
     
     /**
+     * Generate PayHere checkout for one-time rental payment
+     */
+    public static function generateRentalPaymentURL($customer_id, $property_id, $customer_name, $customer_email, $customer_phone, $property_title, $rent_amount, $security_deposit, $return_url, $notify_url) {
+        $merchant_id = PAYHERE_MERCHANT_ID;
+        $merchant_secret = PAYHERE_MERCHANT_SECRET;
+        
+        // Generate unique order ID for rental payment
+        $order_id = 'RENTAL_' . $customer_id . '_' . $property_id . '_' . time();
+        
+        // Calculate total amount (rent + security deposit)
+        $total_amount = $rent_amount + $security_deposit;
+        
+        $data = array(
+            'merchant_id' => $merchant_id,
+            'return_url' => $return_url,
+            'cancel_url' => $return_url,
+            'notify_url' => $notify_url,
+            'order_id' => $order_id,
+            'items' => 'Rental Payment for ' . $property_title,
+            'currency' => 'LKR',
+            'amount' => number_format($total_amount, 2, '.', ''),
+            'first_name' => $customer_name,
+            'last_name' => '',
+            'email' => $customer_email,
+            'phone' => $customer_phone,
+            'address' => '',
+            'city' => '',
+            'country' => 'Sri Lanka',
+            'custom_1' => $property_id,
+            'custom_2' => $customer_id
+        );
+        
+        // Generate hash
+        $hash = self::generateHash($data, $merchant_secret);
+        $data['hash'] = $hash;
+        
+        return array('url' => PAYHERE_CHECKOUT_URL, 'data' => $data);
+    }
+    
+    /**
      * Process monthly recurring payments (for CRON job)
      */
     public static function processMonthlyPayments() {

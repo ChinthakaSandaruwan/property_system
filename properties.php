@@ -1,6 +1,10 @@
 <?php
 // Include database configuration
 require_once 'includes/config.php';
+require_once 'includes/settings_helper.php';
+
+// Get site name
+$site_name = getSiteName();
 
 // Get filters from query parameters
 $search = $_GET['search'] ?? '';
@@ -82,7 +86,7 @@ $properties = $stmt->fetchAll();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Browse Properties - PropertyRental</title>
+    <title>Browse Properties - <?= htmlspecialchars($site_name) ?></title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
     <style>

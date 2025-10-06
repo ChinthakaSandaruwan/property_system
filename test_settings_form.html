@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Settings Update</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { padding: 8px; width: 300px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #218838; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Test Settings Update</h1>
+    
+    <form id="testForm">
+        <div class="form-group">
+            <label>Site Name:</label>
+            <input type="text" name="site_name" value="My Test Site Name" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Site URL:</label>
+            <input type="url" name="site_url" value="http://localhost/rental_system" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Commission Percentage:</label>
+            <input type="number" name="commission_percentage" value="15" step="0.1" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Currency:</label>
+            <select name="currency" required>
+                <option value="LKR">Sri Lankan Rupee (LKR)</option>
+                <option value="USD">US Dollar (USD)</option>
+            </select>
+        </div>
+        
+        <button type="submit">Update Settings</button>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Updating settings...';
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            data.type = 'general';
+            
+            console.log('Sending data:', data);
+            
+            try {
+                const response = await fetch('admin/api/settings_actions.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                console.log('Response status:', response.status);
+                
+                const result = await response.json();
+                console.log('Response result:', result);
+                
+                if (result.success) {
+                    resultDiv.innerHTML = '<div class="result success">Settings updated successfully!</div>';
+                } else {
+                    resultDiv.innerHTML = '<div class="result error">Failed to update settings: ' + (result.message || 'Unknown error') + '</div>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = '<div class="result error">Error: ' + error.message + '</div>';
+            }
+        });
+    </script>
+</body>
+</html>

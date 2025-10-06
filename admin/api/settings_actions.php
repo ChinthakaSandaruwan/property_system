@@ -1,92 +1,65 @@
 <?php
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, X-Requested-With');
 
 // Include database configuration
 require_once '../../includes/config.php';
+require_once '../../includes/functions.php';
 
 // Get JSON input
 $input = json_decode(file_get_contents('php://input'), true);
-
-if (!$input || !isset($input['type'])) {
-    echo json_encode(['success' => false, 'message' => 'Invalid request data']);
-    exit;
+if (!$input) {
+    $input = $_POST; // Fallback to POST data
 }
 
-$type = $input['type'];
+// Handle different HTTP methods
+$method = $_SERVER['REQUEST_METHOD'];
 
 try {
-    $response = ['success' => false, 'message' => 'Unknown settings type'];
-
-    switch ($type) {
-        case 'general':
-            // Handle general settings
-            $response = ['success' => true, 'message' => 'General settings saved successfully'];
-            // You would typically save these to a settings table or config file
+    $response = ['success' => false, 'message' => 'Invalid request'];
+    
+    switch ($method) {
+        case 'GET':
+            // Read all settings
+            $stmt = $pdo->query("SELECT setting_name, setting_value, description FROM system_settings ORDER BY setting_name");
+            $settings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $response = ['success' => true, 'data' => $settings];
             break;
-
-        case 'contact':
-            // Handle contact settings
-            if (isset($input['phone_number'])) {
-                // Validate Sri Lankan phone number
-                $phoneRegex = '/^[0]{1}[7]{1}[01245678]{1}[0-9]{7}$/';
-                if (!preg_match($phoneRegex, $input['phone_number'])) {
-                    $response = ['success' => false, 'message' => 'Invalid Sri Lankan phone number format'];
-                    break;
-                }
-            }
-            $response = ['success' => true, 'message' => 'Contact information saved successfully'];
-            break;
-
-        case 'payment':
-            // Handle payment settings
-            $response = ['success' => true, 'message' => 'Payment settings saved successfully'];
-            break;
-
-        case 'email':
-            // Handle email settings
-            if (isset($input['smtp_username']) && !filter_var($input['smtp_username'], FILTER_VALIDATE_EMAIL)) {
-                $response = ['success' => false, 'message' => 'Invalid email address'];
+            
+        case 'POST':
+            // Create or Update settings
+            if (!isset($input['type'])) {
+                $response = ['success' => false, 'message' => 'Setting type is required'];
                 break;
             }
-            $response = ['success' => true, 'message' => 'Email settings saved successfully'];
+            
+            $type = $input['type'];
+            $response = handleSettingsUpdate($pdo, $type, $input);
             break;
-
-        case 'user':
-            // Handle user management settings
-            $response = ['success' => true, 'message' => 'User management settings saved successfully'];
-            break;
-
-        case 'maintenance':
-            $action = $input['action'] ?? '';
-            switch ($action) {
-                case 'backup':
-                    // Create database backup
-                    $response = ['success' => true, 'message' => 'Database backup created successfully'];
-                    break;
-                case 'clear_cache':
-                    // Clear cache
-                    $response = ['success' => true, 'message' => 'Cache cleared successfully'];
-                    break;
-                case 'toggle_maintenance':
-                    $enable = $input['enable'] ?? false;
-                    // Toggle maintenance mode
-                    $response = ['success' => true, 'message' => 'Maintenance mode ' . ($enable ? 'enabled' : 'disabled')];
-                    break;
-                default:
-                    $response = ['success' => false, 'message' => 'Unknown maintenance action'];
+            
+        case 'PUT':
+            // Update specific setting
+            if (!isset($input['setting_name']) || !isset($input['setting_value'])) {
+                $response = ['success' => false, 'message' => 'Setting name and value are required'];
+                break;
             }
+            
+            $response = updateSetting($pdo, $input['setting_name'], $input['setting_value'], $input['description'] ?? '');
+            break;
+            
+        case 'DELETE':
+            // Delete setting
+            if (!isset($input['setting_name'])) {
+                $response = ['success' => false, 'message' => 'Setting name is required'];
+                break;
+            }
+            
+            $response = deleteSetting($pdo, $input['setting_name']);
             break;
     }
-
-    // In a real implementation, you would:
-    // 1. Create a settings table in your database
-    // 2. Save the settings to that table
-    // 3. Update config files if necessary
-    // 4. Implement proper validation for each setting type
-
+    
 } catch (PDOException $e) {
     $response = [
         'success' => false,
@@ -100,4 +73,151 @@ try {
 }
 
 echo json_encode($response);
+
+/**
+ * Handle settings update based on type
+ */
+function handleSettingsUpdate($pdo, $type, $input) {
+    $pdo->beginTransaction();
+    
+    try {
+        switch ($type) {
+            case 'general':
+                $settings = [
+                    'site_name' => $input['site_name'] ?? '',
+                    'site_url' => $input['site_url'] ?? '',
+                    'commission_percentage' => $input['commission_percentage'] ?? '',
+                    'currency' => $input['currency'] ?? 'LKR'
+                ];
+                
+                foreach ($settings as $name => $value) {
+                    if ($value !== '') {
+                        updateOrInsertSetting($pdo, $name, $value);
+                    }
+                }
+                break;
+                
+            case 'contact':
+                // Validate phone number
+                if (isset($input['phone_number'])) {
+                    $phoneRegex = '/^[\+]?[0-9\s\-\(\)]+$/';
+                    if (!preg_match($phoneRegex, $input['phone_number'])) {
+                        throw new Exception('Invalid phone number format');
+                    }
+                }
+                
+                // Validate email
+                if (isset($input['admin_email']) && !filter_var($input['admin_email'], FILTER_VALIDATE_EMAIL)) {
+                    throw new Exception('Invalid email address');
+                }
+                
+                $settings = [
+                    'admin_email' => $input['admin_email'] ?? '',
+                    'phone_number' => $input['phone_number'] ?? '',
+                    'address' => $input['address'] ?? ''
+                ];
+                
+                foreach ($settings as $name => $value) {
+                    if ($value !== '') {
+                        updateOrInsertSetting($pdo, $name, $value);
+                    }
+                }
+                break;
+                
+            case 'payment':
+                $settings = [
+                    'payhere_merchant_id' => $input['payhere_merchant_id'] ?? '',
+                    'payhere_merchant_secret' => $input['payhere_merchant_secret'] ?? '',
+                    'payhere_mode' => $input['payhere_mode'] ?? 'sandbox',
+                    'payhere_currency' => $input['payhere_currency'] ?? 'LKR',
+                    'payhere_enabled' => $input['payhere_enabled'] ?? '1'
+                ];
+                
+                foreach ($settings as $name => $value) {
+                    // Save all PayHere settings, including empty values to clear them if needed
+                    updateOrInsertSetting($pdo, $name, $value);
+                }
+                break;
+                
+            case 'email':
+                // Validate email
+                if (isset($input['smtp_username']) && $input['smtp_username'] !== '' && !filter_var($input['smtp_username'], FILTER_VALIDATE_EMAIL)) {
+                    throw new Exception('Invalid SMTP username (email address)');
+                }
+                
+                $settings = [
+                    'smtp_host' => $input['smtp_host'] ?? '',
+                    'smtp_port' => $input['smtp_port'] ?? '587',
+                    'smtp_username' => $input['smtp_username'] ?? '',
+                    'smtp_password' => $input['smtp_password'] ?? ''
+                ];
+                
+                foreach ($settings as $name => $value) {
+                    updateOrInsertSetting($pdo, $name, $value);
+                }
+                break;
+                
+            case 'user':
+                $settings = [
+                    'auto_approve_properties' => $input['auto_approve_properties'] ?? '0',
+                    'registration_approval' => $input['registration_approval'] ?? '0',
+                    'max_properties_per_owner' => $input['max_properties_per_owner'] ?? '10'
+                ];
+                
+                foreach ($settings as $name => $value) {
+                    updateOrInsertSetting($pdo, $name, $value);
+                }
+                break;
+                
+            default:
+                throw new Exception('Unknown settings type: ' . $type);
+        }
+        
+        $pdo->commit();
+        return ['success' => true, 'message' => ucfirst($type) . ' settings saved successfully'];
+        
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+}
+
+/**
+ * Update or insert a setting
+ */
+function updateOrInsertSetting($pdo, $name, $value, $description = '') {
+    $stmt = $pdo->prepare("
+        INSERT INTO system_settings (setting_name, setting_value, description) 
+        VALUES (?, ?, ?) 
+        ON DUPLICATE KEY UPDATE 
+        setting_value = VALUES(setting_value),
+        description = COALESCE(NULLIF(VALUES(description), ''), description)
+    ");
+    
+    return $stmt->execute([$name, $value, $description]);
+}
+
+/**
+ * Update specific setting
+ */
+function updateSetting($pdo, $name, $value, $description = '') {
+    if (updateOrInsertSetting($pdo, $name, $value, $description)) {
+        return ['success' => true, 'message' => 'Setting updated successfully'];
+    } else {
+        return ['success' => false, 'message' => 'Failed to update setting'];
+    }
+}
+
+/**
+ * Delete setting
+ */
+function deleteSetting($pdo, $name) {
+    $stmt = $pdo->prepare("DELETE FROM system_settings WHERE setting_name = ?");
+    
+    if ($stmt->execute([$name])) {
+        return ['success' => true, 'message' => 'Setting deleted successfully'];
+    } else {
+        return ['success' => false, 'message' => 'Failed to delete setting'];
+    }
+}
 ?>

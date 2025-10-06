@@ -4,6 +4,11 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 require_once 'includes/functions.php';
+require_once 'includes/settings_helper.php';
+
+// Get site settings
+$site_settings = getSiteSettings();
+$site_name = $site_settings['site_name'];
 
 // Redirect admin and owner users to their dashboards, but let customers stay on homepage
 if (is_logged_in()) {
@@ -62,7 +67,7 @@ $testimonials = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Property Rental System - Find Your Perfect Home</title>
+    <title><?= htmlspecialchars($site_name) ?> - Find Your Perfect Home</title>
     
     <!-- External CSS Libraries -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -921,28 +926,23 @@ $testimonials = [
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
+            background: transparent;
+            pointer-events: none;
             transition: var(--transition);
         }
         
-        .property-card:hover .property-overlay {
-            opacity: 1;
-        }
-        
         .property-actions {
-            display: flex;
-            gap: 1rem;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            pointer-events: auto;
         }
         
         .action-btn {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--white);
+            background: rgba(255, 255, 255, 0.9);
             border: none;
             display: flex;
             align-items: center;
@@ -950,6 +950,8 @@ $testimonials = [
             cursor: pointer;
             transition: var(--transition);
             color: var(--gray-600);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(4px);
         }
         
         .action-btn:hover {
@@ -1058,13 +1060,28 @@ $testimonials = [
         
         .property-footer {
             margin-top: auto;
+            display: flex;
+            gap: 0.75rem;
         }
         
         .property-btn {
-            width: 100%;
+            flex: 1;
             justify-content: center;
-            padding: 0.875rem 1.5rem;
-            font-size: 0.95rem;
+            padding: 0.875rem 1rem;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        .property-btn.btn-secondary {
+            background-color: var(--gray-100);
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+        
+        .property-btn.btn-secondary:hover {
+            background-color: var(--gray-200);
+            color: var(--gray-800);
+            transform: translateY(-2px);
         }
         
         /* Empty State */
@@ -1627,7 +1644,7 @@ $testimonials = [
     <div id="preloader" class="preloader">
         <div class="loader">
             <div class="loader-ring"></div>
-            <div class="loader-text">PropertyRental</div>
+            <div class="loader-text"><?= htmlspecialchars($site_name) ?></div>
         </div>
     </div>
 
@@ -1637,7 +1654,7 @@ $testimonials = [
             <div class="nav-container">
                 <a href="#home" class="logo">
                     <i class="fas fa-home"></i>
-                    <span>PropertyRental</span>
+                    <span><?= htmlspecialchars($site_name) ?></span>
                 </a>
                 <ul class="nav-links">
                     <li><a href="#home" class="nav-link active">Home</a></li>
@@ -1955,9 +1972,6 @@ $testimonials = [
                                         <button class="action-btn favorite-btn" title="Add to favorites">
                                             <i class="far fa-heart"></i>
                                         </button>
-                                        <button class="action-btn share-btn" title="Share property">
-                                            <i class="fas fa-share-alt"></i>
-                                        </button>
                                     </div>
                                 </div>
                                 
@@ -1997,9 +2011,13 @@ $testimonials = [
                                 </div>
                                 
                                 <div class="property-footer">
-                                    <a href="property_details.php?id=<?= $property['id'] ?>" class="btn btn-primary property-btn">
+                                    <a href="property_details.php?id=<?= $property['id'] ?>" class="btn btn-secondary property-btn">
                                         <i class="fas fa-eye"></i>
                                         <span>View Details</span>
+                                    </a>
+                                    <a href="customer/rent_property.php?property_id=<?= $property['id'] ?>" class="btn btn-primary property-btn">
+                                        <i class="fas fa-home"></i>
+                                        <span>Rent Now</span>
                                     </a>
                                 </div>
                             </div>
@@ -2212,7 +2230,7 @@ $testimonials = [
                         <div class="brand-info">
                             <div class="footer-logo">
                                 <i class="fas fa-home"></i>
-                                <span>PropertyRental</span>
+                                <span><?= htmlspecialchars($site_name) ?></span>
                             </div>
                             <p class="brand-description">Your trusted partner in finding the perfect rental home. Safe, secure, and seamless rental experience.</p>
                             
@@ -2260,15 +2278,15 @@ $testimonials = [
                         <div class="contact-info">
                             <div class="contact-item">
                                 <i class="fas fa-map-marker-alt"></i>
-                                <span>123 Main Street, Colombo, Sri Lanka</span>
+                                <span><?= htmlspecialchars($site_settings['company_address']) ?></span>
                             </div>
                             <div class="contact-item">
                                 <i class="fas fa-phone"></i>
-                                <span>+94 77 123 4567</span>
+                                <span><?= htmlspecialchars($site_settings['support_phone']) ?></span>
                             </div>
                             <div class="contact-item">
                                 <i class="fas fa-envelope"></i>
-                                <span>info@propertyrental.lk</span>
+                                <span><?= htmlspecialchars($site_settings['admin_email']) ?></span>
                             </div>
                         </div>
                     </div>
@@ -2276,7 +2294,7 @@ $testimonials = [
                 
                 <div class="footer-bottom">
                     <div class="footer-bottom-content">
-                        <p>&copy; 2024 PropertyRental System. All rights reserved.</p>
+                        <p>&copy; 2024 <?= htmlspecialchars($site_name) ?> System. All rights reserved.</p>
                         <div class="footer-bottom-links">
                             <a href="privacy.php">Privacy Policy</a>
                             <span>|</span>
