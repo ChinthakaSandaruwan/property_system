@@ -1001,7 +1001,7 @@ $testimonials = [
             display: flex;
             align-items: baseline;
             gap: 0.25rem;
-            flex-shrink: 0;
+            flex-shrink: 0; 
         }
         
         .property-price .currency {
